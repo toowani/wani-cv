@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WANI.SYS — half on land, half in water</title>
+<meta name="description" content="김창완(wani, @toowani) — 땅(학업)과 물(음악), 두 세계를 오가는 GIST 개발자 × 전자음악 아티스트 포트폴리오">
+<!-- OG / 공유 미리보기 (배포 후 og:url을 실제 주소로 교체하세요) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="WANI.SYS — half on land, half in water">
+<meta property="og:description" content="김창완(wani) — 땅(학업)과 물(음악)을 오가는 개발자 × 아티스트. GIST EECS · AI/ML · 힙합 베이스 전자음악.">
+<meta property="og:image" content="assets/og.png">
+<meta property="og:url" content="https://toowani.github.io/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<meta name="theme-color" content="#050507">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Archivo+Black&family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-mode="none" data-fx="high" data-lang="ko">
+
+<!-- ============================================================
+     BOOT OVERLAY : 터미널 부팅 시퀀스
+============================================================ -->
+<div id="boot" aria-hidden="true">
+  <pre id="boot-log"></pre>
+  <div id="boot-bar"><div id="boot-bar-fill"></div></div>
+  <p id="boot-skip">[ CLICK OR PRESS ANY KEY TO SKIP ]</p>
+</div>
+
+<!-- ============================================================
+     GLOBAL FX LAYERS
+============================================================ -->
+<canvas id="bg-canvas"></canvas>
+<div class="fx-scanlines" aria-hidden="true"></div>
+<div class="fx-noise" aria-hidden="true"></div>
+<div class="fx-vignette" aria-hidden="true"></div>
+<div id="mode-flash" aria-hidden="true"></div>
+
+<!-- ============================================================
+     HEADER / HUD
+============================================================ -->
+<header id="hud">
+  <a href="#" id="logo" class="glitch-text" data-text="WANI.SYS">WANI.SYS</a>
+  <div id="hud-status">
+    <span id="hud-clock">--:--:--</span>
+    <span id="hud-mode-label">MODE: NULL</span>
+  </div>
+  <nav id="hud-controls">
+    <button id="btn-mode" class="hud-btn" title="모드 전환">⇄ <span data-ui="switchMode">모드 전환</span></button>
+    <button id="btn-audio" class="hud-btn" title="오디오 재생/정지">▶ AUDIO</button>
+    <button id="btn-lang" class="hud-btn" title="Language">KO/EN</button>
+    <button id="btn-fx" class="hud-btn" title="이펙트 강도">FX:HIGH</button>
+    <button id="btn-print" class="hud-btn" title="전체 이력 인쇄/저장">⎙ PRINT</button>
+  </nav>
+</header>
+
+<!-- 인쇄 전용 뷰 (⎙ PRINT 클릭 시 두 모드 전체가 채워짐, 화면에는 안 보임) -->
+<div id="print-root" aria-hidden="true"></div>
+
+<div class="ticker ticker-top" aria-hidden="true"><div class="ticker-inner" id="ticker-top-inner"></div></div>
+
+<!-- ============================================================
+     LANDING : 수면 분할 — 위(땅/학업) · 아래(물/음악)
+============================================================ -->
+<section id="landing">
+  <button class="half half-land" data-choose="dev">
+    <span class="half-inner">
+      <span class="half-tag" data-ui="landTag">▲ ON LAND</span>
+      <span class="half-title glitch-text" data-text="DEV_WANI">DEV_WANI</span>
+      <span class="half-desc" data-ui="devCardDesc">땅 위의 나 — GIST 전기전자컴퓨터공학 · AI/ML</span>
+      <span class="half-enter" data-ui="enter">[ ENTER ]</span>
+    </span>
+  </button>
+  <button class="half half-water" data-choose="artist">
+    <span class="half-inner">
+      <span class="half-tag" data-ui="waterTag">▼ IN WATER</span>
+      <span class="half-title glitch-text" data-text="ARTIST_WANI">ARTIST_WANI</span>
+      <span class="half-desc" data-ui="artistCardDesc">물 속의 나 — 힙합 베이스 전자음악</span>
+      <span class="half-enter" data-ui="enter">[ ENTER ]</span>
+    </span>
+  </button>
+
+  <!-- 수면(파도) — 마우스에 반응해 출렁임 (engine.js가 그림) -->
+  <canvas id="waterline-canvas" aria-hidden="true"></canvas>
+
+  <!-- 수면 위 중앙 타이틀 + 악어 -->
+  <div id="landing-center" aria-hidden="true">
+    <p class="landing-eyebrow" data-ui="landingEyebrow">// HALF ON LAND, HALF IN WATER</p>
+    <h1 class="landing-title glitch-text" data-text="WANI">WANI</h1>
+    <pre class="croc-ascii" id="croc">            _   _
+          _(o)_(o)_
+   ~~~~~~/  ~ ~ ~  \_______.~~~~~~
+    \/\_/  t o o w a n i  /\_/\/
+        '--..________..--'</pre>
+    <p class="landing-id" data-ui="landingId">김창완 KIM CHANGWAN · GIST 전기전자컴퓨터공학 · @toowani</p>
+  </div>
+</section>
+
+<noscript>
+  <div style="position:relative;z-index:20;max-width:720px;margin:40px auto;padding:24px;font-family:monospace;color:#e8e8f0;border:1px solid #00e5ff;text-align:center;">
+    <h1>김창완 (wani, @toowani)</h1>
+    <p>GIST 전기전자컴퓨터공학과 3학년 — AI/ML 개발자이자 힙합 베이스 전자음악 아티스트.</p>
+    <p>이 사이트는 JavaScript가 필요합니다. 연락: changwan@gm.gist.ac.kr ·
+       <a href="https://github.com/toowani" style="color:#b6ff00">GitHub</a> ·
+       <a href="https://www.youtube.com/@toowani" style="color:#b6ff00">YouTube</a></p>
+  </div>
+</noscript>
+
+<!-- ============================================================
+     MAIN CONTENT : data.js 렌더링 영역
+============================================================ -->
+<main id="content" hidden></main>
+
+<div class="ticker ticker-bottom" aria-hidden="true"><div class="ticker-inner" id="ticker-bottom-inner"></div></div>
+
+<footer id="site-footer" hidden>
+  <p>© 2026 WANI (@toowani) — built with vanilla HTML/CSS/JS · <span data-ui="footerNote">이 사이트는 GitHub Pages에서 구동됩니다</span></p>
+  <p class="footer-ascii" aria-hidden="true">[ AMPHIBIAN SYSTEM ONLINE // LAND ✓ WATER ✓ // SIGNAL STABLE ]</p>
+</footer>
+
+<!--
+  오디오 파일 자리:
+  assets/audio/track.mp3 에 본인 음원(mp3)을 넣으면
+  ▶ AUDIO 버튼으로 재생 + 배경 비주얼이 음악에 반응합니다.
+-->
+<audio id="audio-el" src="assets/audio/track.mp3" preload="none" crossorigin="anonymous"></audio>
+
+<script src="js/data.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

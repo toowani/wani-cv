@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- 픽셀 악어: 수면 위 눈, 물 속 몸통 -->
+  <rect width="16" height="16" fill="#050507"/>
+  <!-- 눈 (수면 위) -->
+  <rect x="3" y="3" width="3" height="3" fill="#b6ff00"/>
+  <rect x="9" y="3" width="3" height="3" fill="#b6ff00"/>
+  <rect x="4" y="4" width="1" height="1" fill="#050507"/>
+  <rect x="10" y="4" width="1" height="1" fill="#050507"/>
+  <!-- 수면선 -->
+  <rect x="0" y="7" width="16" height="1" fill="#00e5ff"/>
+  <!-- 몸통 (물 속) -->
+  <rect x="2" y="8" width="12" height="4" fill="#2979ff"/>
+  <rect x="1" y="9" width="1" height="2" fill="#2979ff"/>
+  <rect x="14" y="9" width="1" height="2" fill="#2979ff"/>
+  <!-- 이빨 -->
+  <rect x="4" y="12" width="2" height="1" fill="#e8e8f0"/>
+  <rect x="8" y="12" width="2" height="1" fill="#e8e8f0"/>
+</svg>
