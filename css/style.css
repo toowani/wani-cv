@@ -83,12 +83,16 @@ button { font-family: var(--mono); cursor:pointer; }
 }
 #mode-flash {
   position:fixed; inset:0; z-index:900; pointer-events:none; opacity:0;
-  background:repeating-linear-gradient(0deg,var(--c1) 0 4px,#000 4px 8px,var(--c3) 8px 12px);
+  /* 채도·밝기 낮춘 스트라이프 — 눈부심 방지 */
+  background:repeating-linear-gradient(0deg,
+    color-mix(in srgb, var(--c1) 30%, #000) 0 4px,
+    #000 4px 8px,
+    color-mix(in srgb, var(--c3) 24%, #000) 8px 12px);
 }
 #mode-flash.active { animation: flashy .55s steps(8); }
 @keyframes flashy {
-  0%{opacity:0} 15%{opacity:.9; transform:none} 40%{opacity:.5; transform:translateX(-12px)}
-  70%{opacity:.8; transform:translateX(9px) skewX(4deg)} 100%{opacity:0}
+  0%{opacity:0} 15%{opacity:.55; transform:none} 40%{opacity:.32; transform:translateX(-12px)}
+  70%{opacity:.45; transform:translateX(9px) skewX(4deg)} 100%{opacity:0}
 }
 
 /* ---------- glitch text (RGB split) ---------- */
@@ -411,6 +415,67 @@ body[data-fx="off"] .glitch-text::before, body[data-fx="off"] .glitch-text::afte
   .croc-ascii { animation:none; }
 }
 
+/* ============================================================
+   CROC CURSOR — 평소 입 벌림 / 클릭 깨물기 / 스크롤 회전
+============================================================ */
+@media (hover: hover) {
+  body:not([data-fx="off"]), body:not([data-fx="off"]) * { cursor: none !important; }
+}
+#croc-cursor {
+  position:fixed; left:0; top:0; z-index:1200; pointer-events:none;
+  display:none; margin:-15px 0 0 -3px; /* 입 끝이 포인터 위치 */
+  filter:drop-shadow(0 0 6px color-mix(in srgb,var(--c1) 60%,transparent));
+}
+#croc-cursor.on { display:block; }
+body[data-fx="off"] #croc-cursor { display:none !important; }
+@media (hover: none) { #croc-cursor { display:none !important; } }
+.croc-body { transform-origin:20px 15px; display:block; }
+#croc-cursor.spin .croc-body { animation:croc-spin .5s linear infinite; }
+@keyframes croc-spin { to { transform:rotate(-360deg); } }
+.jaw-top, .jaw-bot { transform-origin:36px 15.5px; }
+.jaw-top { transform:rotate(-16deg); }
+.jaw-bot { transform:rotate(11deg); }
+#croc-cursor.bite .jaw-top { animation:bite-top .28s ease-out; }
+#croc-cursor.bite .jaw-bot { animation:bite-bot .28s ease-out; }
+@keyframes bite-top { 0%{transform:rotate(-16deg)} 40%{transform:rotate(-1deg)} 100%{transform:rotate(-16deg)} }
+@keyframes bite-bot { 0%{transform:rotate(11deg)}  40%{transform:rotate(1deg)}  100%{transform:rotate(11deg)} }
+
+/* ============================================================
+   MAP NAV — 늪지대 지도 (스크롤 스파이)
+============================================================ */
+#map-nav[hidden] { display:none !important; }
+#map-nav {
+  position:fixed; left:20px; top:50%; transform:translateY(-50%);
+  z-index:80; text-align:left; font-family:var(--mono);
+}
+.map-title { font-size:9px; letter-spacing:3px; color:var(--dim); margin-bottom:12px; }
+.map-trail { position:relative; display:flex; flex-direction:column; padding-left:30px; }
+.map-trail::before { /* 점선 물길 */
+  content:""; position:absolute; left:9px; top:10px; bottom:10px; width:0;
+  border-left:2px dashed color-mix(in srgb,var(--c1) 45%,transparent);
+}
+.map-node {
+  position:relative; display:block; background:none; border:none; text-align:left;
+  font-family:var(--mono); font-size:10px; letter-spacing:1px;
+  color:var(--dim); padding:7px 0; transition:color .2s;
+}
+.map-node:hover { color:var(--fg); }
+.map-node .map-dot {
+  position:absolute; left:-25px; top:50%; width:8px; height:8px;
+  transform:translateY(-50%) rotate(45deg);
+  background:var(--bg); border:1.5px solid color-mix(in srgb,var(--c1) 55%,transparent);
+  transition:.2s;
+}
+.map-node.active { color:var(--c1); text-shadow:0 0 10px color-mix(in srgb,var(--c1) 55%,transparent); }
+.map-node.active .map-dot { border-color:var(--c1); box-shadow:0 0 10px var(--c1); }
+#map-croc {
+  position:absolute; left:-4px; width:26px; margin-top:-9px; /* croc-bob 애니메이션과 충돌 없게 transform 대신 margin으로 센터링 */
+  transition:top .45s cubic-bezier(.5,1.6,.4,1);
+  filter:drop-shadow(0 0 5px color-mix(in srgb,var(--c1) 70%,transparent));
+  animation: croc-bob 3s ease-in-out infinite;
+}
+@media (max-width: 1150px) { #map-nav { display:none !important; } }
+
 /* ---------- touch devices (hover 없음) ---------- */
 @media (hover: none) {
   .half-enter { opacity:1; }             /* [ENTER]가 항상 보이게 */
@@ -445,6 +510,62 @@ body[data-fx="off"] .glitch-text::before, body[data-fx="off"] .glitch-text::afte
   #print-root table { width:100%; border-collapse:collapse; margin-bottom:2mm; page-break-inside:avoid; }
   #print-root td { border-bottom:.3pt solid #bbb; padding:.8mm 1.5mm; font-size:9.5px; }
 }
+
+/* ============================================================
+   EASTER EGG GAME — 악어 미로
+============================================================ */
+#game-overlay[hidden] { display:none !important; }
+#game-overlay {
+  position:fixed; inset:0; z-index:1500;
+  background:rgba(3,3,5,.96);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:10px; font-family:var(--mono);
+}
+#game-hud {
+  display:flex; align-items:center; gap:18px; flex-wrap:wrap; justify-content:center;
+  font-size:13px; letter-spacing:1px; color:var(--fg);
+}
+#g-score { color:#e8e8f0; }
+#g-best { color:var(--dim); font-size:11px; }
+#g-time { color:#ffb300; min-width:3ch; text-align:center; }
+#g-lives { color:#ff2bd6; letter-spacing:3px; }
+#g-exit {
+  background:transparent; border:1px solid var(--dim); color:var(--dim);
+  font-size:11px; padding:4px 9px;
+}
+#g-exit:hover { border-color:#fff; color:#fff; }
+#game-canvas {
+  border:1px solid rgba(255,255,255,.2);
+  box-shadow:0 0 60px rgba(0,229,255,.12), 0 0 60px rgba(182,255,0,.08);
+  image-rendering:pixelated;
+}
+#game-msg {
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  background:rgba(5,5,9,.94); border:1px solid rgba(255,255,255,.25);
+  padding:30px 40px; text-align:center; max-width:86vw;
+  box-shadow:0 0 50px rgba(0,0,0,.8);
+}
+#game-msg[hidden] { display:none; }
+#game-msg h2 {
+  font-family:var(--disp); font-size:30px; margin-bottom:12px;
+  background:linear-gradient(90deg,#b6ff00,#fff,#00e5ff);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+#game-msg p { font-size:12px; color:var(--dim); line-height:1.9; margin-bottom:10px; }
+#game-msg .gm-croc { color:#b6ff00; font-size:11px; line-height:1.3; margin-bottom:10px; }
+#game-msg .gm-land { color:#b6ff00; }
+#game-msg .gm-water { color:#00e5ff; }
+#game-msg .gm-keys { color:#e8e8f0; }
+#game-msg .gm-final { font-size:16px; color:#fff; }
+#game-msg .gm-final b { color:#ffb300; font-size:22px; }
+#game-msg .gm-bonus { font-size:11px; color:var(--dim); }
+#game-msg button {
+  background:transparent; border:1px solid #b6ff00; color:#b6ff00;
+  font-size:13px; letter-spacing:2px; padding:10px 20px; margin:8px 6px 0;
+}
+#game-msg button:hover { background:#b6ff00; color:#000; box-shadow:0 0 24px #b6ff00; }
+#game-msg #gm-quit { border-color:var(--dim); color:var(--dim); }
+#game-msg #gm-quit:hover { background:var(--dim); color:#000; box-shadow:none; }
 
 /* ---------- responsive ---------- */
 @media (max-width: 720px) {

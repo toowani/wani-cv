@@ -35,6 +35,25 @@
 ============================================================ -->
 <canvas id="bg-canvas"></canvas>
 <div class="fx-scanlines" aria-hidden="true"></div>
+
+<!-- 커스텀 악어 커서: 평소 입 벌림 / 클릭 시 깨물기 / 스크롤 시 회전 -->
+<div id="croc-cursor" aria-hidden="true">
+  <svg class="croc-body" width="42" height="30" viewBox="0 0 42 30">
+    <g class="jaw-top">
+      <polygon points="2,13 28,8 38,9 38,14 2,14" fill="var(--c1)"/>
+      <rect x="30" y="2" width="7" height="7" fill="var(--c1)"/>
+      <rect x="32" y="4" width="3" height="3" fill="#050507"/>
+      <rect x="7" y="11" width="2" height="3" fill="#fff"/>
+      <rect x="13" y="11" width="2" height="3" fill="#fff"/>
+      <rect x="19" y="11" width="2" height="3" fill="#fff"/>
+    </g>
+    <g class="jaw-bot">
+      <polygon points="2,17 38,17 38,22 28,23 2,18" fill="var(--c3)"/>
+      <rect x="9" y="16" width="2" height="3" fill="#fff"/>
+      <rect x="16" y="16" width="2" height="3" fill="#fff"/>
+    </g>
+  </svg>
+</div>
 <div class="fx-noise" aria-hidden="true"></div>
 <div class="fx-vignette" aria-hidden="true"></div>
 <div id="mode-flash" aria-hidden="true"></div>
@@ -109,6 +128,9 @@
   </div>
 </noscript>
 
+<!-- 늪지대 지도 내비게이션 (스크롤 위치 표시, main.js가 채움) -->
+<nav id="map-nav" hidden aria-label="섹션 지도"></nav>
+
 <!-- ============================================================
      MAIN CONTENT : data.js 렌더링 영역
 ============================================================ -->
@@ -128,8 +150,25 @@
 -->
 <audio id="audio-el" src="assets/audio/track.mp3" preload="none" crossorigin="anonymous"></audio>
 
+<!-- ============================================================
+     EASTER EGG : 악어 미로 게임 (홈에서 WANI.SYS 로고 3연타)
+============================================================ -->
+<div id="game-overlay" hidden>
+  <div id="game-hud">
+    <span id="g-score">SCORE 0</span>
+    <span id="g-best"></span>
+    <span id="g-phase">▲ LAND</span>
+    <span id="g-time">90</span>
+    <span id="g-lives">◆◆◆</span>
+    <button id="g-exit" title="게임 종료 (ESC)">✕</button>
+  </div>
+  <canvas id="game-canvas"></canvas>
+  <div id="game-msg"></div>
+</div>
+
 <script src="js/data.js"></script>
 <script src="js/engine.js"></script>
+<script src="js/game.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

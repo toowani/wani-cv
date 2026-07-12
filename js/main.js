@@ -155,7 +155,7 @@
     const pad = (n) => String(n).padStart(2, "0");
 
     let html = `
-      <section class="section-block reveal">
+      <section class="section-block reveal" id="sec-about">
         <div class="section-head">
           <span class="section-num">${pad(++num)}</span>
           <h2 class="section-title glitch-text" data-text="${m === "dev" ? "ABOUT.EXE" : "ABOUT.WAV"}">${m === "dev" ? "ABOUT.EXE" : "ABOUT.WAV"}</h2>
@@ -200,30 +200,110 @@
       setMode(e.currentTarget.dataset.cross);
     });
     observeReveals();
+    buildMapNav(m);
   }
 
   /* ============================================================
-     MODE SWITCH — 글리치 플래시와 함께 전환
+     MAP NAV — 늪지대 지도 (현재 섹션 위치에 악어가 헤엄쳐 감)
      ============================================================ */
-  function setMode(m, instant) {
-    const doSwitch = () => {
-      mode = m;
-      body.dataset.mode = m;
-      $("#landing").hidden = true;
-      $("#content").hidden = false;
-      $("#site-footer").hidden = false;
-      $("#hud-mode-label").textContent = "MODE: " + (m === "dev" ? "DEV_WANI" : "ARTIST_WANI");
-      setTicker(m);
-      renderMode(m);
-      window.scrollTo({ top: 0, behavior: "instant" });
-    };
-    if (instant || fx === "off") { doSwitch(); return; }
+  const MAP_CROC_SVG = `<svg width="26" height="16" viewBox="0 0 26 16">
+    <rect x="3" y="0" width="4" height="4" fill="var(--c2)"/>
+    <rect x="11" y="0" width="4" height="4" fill="var(--c2)"/>
+    <rect x="4" y="1" width="2" height="2" fill="#050507"/>
+    <rect x="12" y="1" width="2" height="2" fill="#050507"/>
+    <rect x="0" y="6" width="26" height="5" fill="var(--c1)"/>
+    <rect x="4" y="11" width="3" height="2" fill="#fff"/>
+    <rect x="12" y="11" width="3" height="2" fill="#fff"/>
+  </svg>`;
+  let spy = null;
+
+  function buildMapNav(m) {
+    const nav = $("#map-nav");
+    const items = [{ id: "sec-about", label: m === "dev" ? "ABOUT.EXE" : "ABOUT.WAV" }];
+    for (const sec of SITE_DATA[m].sections) items.push({ id: "sec-" + sec.id, label: sec.title[lang] });
+    nav.innerHTML =
+      `<div class="map-title">${m === "dev" ? "LAND MAP" : "SWAMP MAP"}</div><div class="map-trail">` +
+      items.map((it) =>
+        `<button class="map-node" data-target="${it.id}"><span class="map-dot"></span><span class="map-label">${it.label}</span></button>`
+      ).join("") +
+      `<span id="map-croc" aria-hidden="true">${MAP_CROC_SVG}</span></div>`;
+    nav.hidden = false;
+    nav.querySelectorAll(".map-node").forEach((b) =>
+      b.addEventListener("click", () =>
+        document.getElementById(b.dataset.target)?.scrollIntoView({ behavior: "smooth", block: "start" })
+      )
+    );
+    setActiveNode("sec-about");
+    spy?.disconnect();
+    spy = new IntersectionObserver((entries) => {
+      for (const e of entries) if (e.isIntersecting) setActiveNode(e.target.id);
+    }, { rootMargin: "-25% 0px -65% 0px" });
+    document.querySelectorAll("#content .section-block[id]").forEach((s) => spy.observe(s));
+  }
+
+  function setActiveNode(id) {
+    const nav = $("#map-nav");
+    let active = null;
+    nav.querySelectorAll(".map-node").forEach((b) => {
+      const on = b.dataset.target === id;
+      b.classList.toggle("active", on);
+      if (on) active = b;
+    });
+    const croc = $("#map-croc");
+    if (active && croc) croc.style.top = (active.offsetTop + active.offsetHeight / 2) + "px";
+  }
+
+  /* ============================================================
+     MODE SWITCH + HISTORY — 모드 전환을 브라우저 히스토리에 기록
+     (뒤로가기 = 이전 화면, #dev/#artist 해시로 딥링크 가능)
+     ============================================================ */
+  function applyMode(m) {
+    mode = m;
+    body.dataset.mode = m;
+    $("#landing").hidden = true;
+    $("#content").hidden = false;
+    $("#site-footer").hidden = false;
+    $("#hud-mode-label").textContent = "MODE: " + (m === "dev" ? "DEV_WANI" : "ARTIST_WANI");
+    setTicker(m);
+    renderMode(m);
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }
+
+  function setMode(m, push = true) {
+    if (push) history.pushState({ view: m }, "", "#" + m);
+    if (fx === "off") { applyMode(m); return; }
     const flash = $("#mode-flash");
     flash.classList.remove("active");
     void flash.offsetWidth; // reflow → 애니메이션 재시작
     flash.classList.add("active");
-    setTimeout(doSwitch, 200);
+    setTimeout(() => applyMode(m), 200);
   }
+
+  function goHome(push = true) {
+    if (push && mode !== "none") {
+      history.pushState({ view: "home" }, "", location.pathname + location.search);
+    }
+    mode = "none";
+    body.dataset.mode = "none";
+    $("#content").hidden = true;
+    $("#site-footer").hidden = true;
+    $("#map-nav").hidden = true;
+    $("#landing").hidden = false;
+    $("#hud-mode-label").textContent = "MODE: NULL";
+    setTicker("none");
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }
+
+  window.addEventListener("popstate", (e) => {
+    const v = e.state?.view ||
+      (location.hash === "#dev" ? "dev" :
+       location.hash === "#artist" ? "artist" :
+       location.hash === "#game" ? "game" : "home");
+    if (v === "game") { window.WANI_GAME?.open(false); return; }
+    if (window.WANI_GAME?.isOpen()) window.WANI_GAME.close(false);
+    if (v === "dev" || v === "artist") setMode(v, false);
+    else goHome(false);
+  });
 
   /* ---------- 티커 ---------- */
   function setTicker(m) {
@@ -345,21 +425,53 @@
     window.print();
   });
 
+  /* 로고: 홈 복귀 + (홈에서 3연타 시) 이스터에그 악어 게임 */
+  let logoTaps = 0, logoTapTimer = null;
   $("#logo").addEventListener("click", (e) => {
     e.preventDefault();
-    mode = "none";
-    body.dataset.mode = "none";
-    $("#content").hidden = true;
-    $("#site-footer").hidden = true;
-    $("#landing").hidden = false;
-    $("#hud-mode-label").textContent = "MODE: NULL";
-    setTicker("none");
-    window.scrollTo({ top: 0, behavior: "instant" });
+    if (mode === "none") {
+      logoTaps++;
+      clearTimeout(logoTapTimer);
+      logoTapTimer = setTimeout(() => { logoTaps = 0; }, 550);
+      if (logoTaps >= 3) {
+        logoTaps = 0;
+        window.WANI_GAME?.open();
+        return;
+      }
+    } else {
+      logoTaps = 0;
+    }
+    goHome();
   });
 
   document.querySelectorAll("[data-choose]").forEach((btn) =>
     btn.addEventListener("click", () => setMode(btn.dataset.choose))
   );
+
+  /* ============================================================
+     CROC CURSOR — 입 벌린 악어 / 클릭 깨물기 / 스크롤 회전
+     ============================================================ */
+  (function initCrocCursor() {
+    const cur = $("#croc-cursor");
+    if (!cur || !matchMedia("(hover: hover)").matches) return;
+    window.addEventListener("pointermove", (e) => {
+      cur.style.left = e.clientX + "px";
+      cur.style.top = e.clientY + "px";
+      cur.classList.add("on");
+    }, { passive: true });
+    window.addEventListener("pointerdown", () => {
+      cur.classList.remove("bite");
+      void cur.offsetWidth; // 애니메이션 재시작
+      cur.classList.add("bite");
+    });
+    let spinT = null;
+    window.addEventListener("scroll", () => {
+      cur.classList.add("spin");
+      clearTimeout(spinT);
+      spinT = setTimeout(() => cur.classList.remove("spin"), 220);
+    }, { passive: true });
+    document.documentElement.addEventListener("pointerleave", () => cur.classList.remove("on"));
+  })();
 
   /* ---------- 시계 ---------- */
   setInterval(() => {
@@ -369,5 +481,13 @@
   /* ---------- init ---------- */
   applyUI();
   setTicker("none");
+  // 해시 딥링크: #dev / #artist 로 직접 진입 가능
+  const initHash = location.hash.replace("#", "");
+  if (initHash === "dev" || initHash === "artist") {
+    history.replaceState({ view: initHash }, "", "#" + initHash);
+    applyMode(initHash);
+  } else {
+    history.replaceState({ view: "home" }, "", location.pathname + location.search);
+  }
   runBoot();
 })();
