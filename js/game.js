@@ -1,42 +1,26 @@
 /* ============================================================
-   WANI MAZE — 이스터에그 악어 미로 게임
+   WANI MAZE — 이스터에그 악어 미로 게임 v2
    진입: 홈(mode=null)에서 WANI.SYS 로고 3연타
-   규칙:
-   - 화살표/WASD/스와이프로 악어 조작
-   - 물고기(물길)와 열매(땅길)를 전부 먹으면 클리어
-   - 사냥꾼 2명을 피할 것 (목숨 3개)
-   - 8초마다 땅⇄물 페이즈 전환: L길은 땅에서만, W길은 물에서만 통행 가능
-   - 제한시간 90초, 클리어 시 남은 시간 × 10점 보너스
+
+   v2 변경점:
+   - 매 판 미로/먹이/스폰 무작위 생성 (양 페이즈 BFS 연결성 검증)
+   - 난이도 하향: 사냥꾼 감속, 추격률 55%, 페이즈 10초, 시작 카운트다운
+   - 땅/물 통행 가능 여부 시각화 강화 (잔디·물결 vs 어두운 ✕)
+   - 칩튠 BGM + 먹이/사망/클리어 효과음 (Web Audio 합성)
+   - 게임 중 사이트 오디오 자동 일시정지, 종료 시 복원
    ============================================================ */
 (function () {
   "use strict";
 
-  /* ---------- 미로 (15×13) ----------
-     # 벽 · . 상시 통행 · L 땅 페이즈 전용 · W 물 페이즈 전용 */
-  const MAP = [
-    "###############",
-    "#.....#.....W.#",
-    "#.###.#.###.#.#",
-    "#L..#...W.#...#",
-    "#.#.#.###.#.#W#",
-    "#.#.....#...#.#",
-    "#.###.#.#.###.#",
-    "#.....#.....L.#",
-    "###.#.####.#.##",
-    "#W..#....#.#..#",
-    "#.#.###.#..#L.#",
-    "#.......#.....#",
-    "###############",
-  ];
-  const COLS = 15, ROWS = 13;
-  const PLAYER_SPAWN = { x: 1, y: 1 };
-  const HUNTER_SPAWNS = [{ x: 7, y: 5 }, { x: 13, y: 11 }];
-
-  const TIME_LIMIT = 90;       // 초
-  const PHASE_SEC = 8;         // 페이즈 전환 주기
-  const WARN_SEC = 1.6;        // 전환 예고 시간
-  const PLAYER_MS = 150;       // 타일 이동 시간(ms)
-  const HUNTER_MS = 210;
+  const COLS = 15, ROWS = 13;      // 홀수 (셀 7×6 미로)
+  const TIME_LIMIT = 90;           // 초
+  const PHASE_SEC = 10;            // 페이즈 전환 주기
+  const WARN_SEC = 2.2;            // 전환 예고
+  const PLAYER_MS = 140;           // 플레이어 타일 이동(ms)
+  const HUNTER_MS = 265;           // 사냥꾼 (플레이어보다 확실히 느림)
+  const CHASE_P = 0.55;            // 사냥꾼 추격 확률
+  const READY_SEC = 2.0;           // 시작/부활 카운트다운
+  const SPECIAL_TILES = 10;        // L/W 특수 타일 개수
   const PELLET_PT = 10;
 
   const LAND = { c1: "#b6ff00", c2: "#ffb300", bg: "#0a0f04" };
@@ -53,12 +37,79 @@
   const elLives = document.getElementById("g-lives");
   const elMsg = document.getElementById("game-msg");
 
-  /* ---------- 상태 ---------- */
-  let open = false, running = false, raf = null, lastT = 0;
-  let tile = 32, offX = 0, offY = 0;
-  let phase, phaseT, timeLeft, score, lives, pellets, invincible;
-  let player, hunters;
-  let flashT = 0;
+  /* ============================================================
+     SOUND — Web Audio 합성 (파일 없이 칩튠)
+     ============================================================ */
+  const SND = {
+    ctx: null, gain: null, timer: null, step: 0, next: 0,
+    ensure() {
+      if (!this.ctx) {
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        this.gain = this.ctx.createGain();
+        this.gain.gain.value = 0.13;
+        this.gain.connect(this.ctx.destination);
+      }
+      if (this.ctx.state === "suspended") this.ctx.resume();
+    },
+    tone(f, t0, dur, type = "square", vol = 1, endF = null) {
+      const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(f, t0);
+      if (endF) o.frequency.exponentialRampToValueAtTime(endF, t0 + dur);
+      g.gain.setValueAtTime(vol, t0);
+      g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+      o.connect(g); g.connect(this.gain);
+      o.start(t0); o.stop(t0 + dur + 0.02);
+    },
+    eat() { // 띠링- (볼륨 절반)
+      this.ensure(); const t = this.ctx.currentTime;
+      this.tone(880, t, 0.06, "square", 0.35);
+      this.tone(1318, t + 0.06, 0.09, "square", 0.35);
+    },
+    death() { // 추락하는 소리
+      this.ensure(); const t = this.ctx.currentTime;
+      this.tone(440, t, 0.45, "sawtooth", 0.8, 55);
+      this.tone(220, t + 0.05, 0.4, "square", 0.4, 40);
+    },
+    phase(toWater) { // 페이즈 전환 스윕
+      this.ensure(); const t = this.ctx.currentTime;
+      if (toWater) this.tone(700, t, 0.25, "triangle", 0.6, 250);
+      else this.tone(250, t, 0.25, "triangle", 0.6, 700);
+    },
+    win() {
+      this.ensure(); const t = this.ctx.currentTime;
+      [523, 659, 784, 1047, 1319].forEach((f, i) => this.tone(f, t + i * 0.11, 0.14, "square", 0.7));
+      this.tone(1568, t + 0.55, 0.4, "square", 0.7);
+    },
+    over() {
+      this.ensure(); const t = this.ctx.currentTime;
+      [330, 262, 196, 131].forEach((f, i) => this.tone(f, t + i * 0.16, 0.2, "sawtooth", 0.6));
+    },
+    /* 16스텝 칩튠 BGM 루프 (룩어헤드 스케줄러) */
+    LEAD: [659, 784, 988, 1319, 988, 784, 659, 0, 523, 659, 784, 1047, 784, 988, 880, 0],
+    BASS: [110, 0, 165, 0, 131, 0, 165, 0, 110, 0, 165, 0, 147, 0, 196, 0],
+    startBgm() {
+      this.ensure();
+      this.stopBgm();
+      this.step = 0;
+      this.next = this.ctx.currentTime + 0.05;
+      this.timer = setInterval(() => {
+        while (this.next < this.ctx.currentTime + 0.25) {
+          const s = this.step % 16;
+          if (this.LEAD[s]) this.tone(this.LEAD[s], this.next, 0.11, "square", 0.35);
+          if (this.BASS[s]) this.tone(this.BASS[s], this.next, 0.13, "triangle", 0.5);
+          this.next += 0.145;
+          this.step++;
+        }
+      }, 90);
+    },
+    stopBgm() { clearInterval(this.timer); this.timer = null; },
+  };
+
+  /* ============================================================
+     RANDOM MAZE — 백트래커 + 브레이딩 + L/W 배치 (BFS 검증)
+     ============================================================ */
+  let MAP = [], playerSpawn, hunterSpawns;
 
   const at = (x, y) => (MAP[y] && MAP[y][x]) || "#";
   function passable(x, y, ph) {
@@ -68,75 +119,181 @@
     if (t === "W") return ph === "water";
     return true;
   }
+  const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
-  /* ---------- 엔티티 ---------- */
+  function validateMap(grid, spawn) {
+    const pass2 = (x, y, ph) => {
+      const t = (grid[y] || [])[x] || "#";
+      return t !== "#" && (t === "L" ? ph === "land" : t === "W" ? ph === "water" : true);
+    };
+    for (const ph of ["land", "water"]) {
+      const seen = new Set([spawn.x + "," + spawn.y]);
+      const q = [[spawn.x, spawn.y]];
+      while (q.length) {
+        const [x, y] = q.pop();
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+          const nx = x + dx, ny = y + dy, k = nx + "," + ny;
+          if (!seen.has(k) && pass2(nx, ny, ph)) { seen.add(k); q.push([nx, ny]); }
+        }
+      }
+      for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+        if (grid[y][x] !== "#" && pass2(x, y, ph) && !seen.has(x + "," + y)) return false;
+      }
+    }
+    return true;
+  }
+
+  function genMap() {
+    for (let attempt = 0; attempt < 40; attempt++) {
+      const grid = Array.from({ length: ROWS }, () => Array(COLS).fill("#"));
+      const CW = (COLS - 1) / 2, CH = (ROWS - 1) / 2; // 7×6 셀
+      const tileOf = (c) => ({ x: c.x * 2 + 1, y: c.y * 2 + 1 });
+
+      // 1) 백트래커로 트리 미로
+      const visited = new Set(["0,0"]);
+      const stack = [{ x: 0, y: 0 }];
+      grid[1][1] = ".";
+      while (stack.length) {
+        const cur = stack[stack.length - 1];
+        const nbrs = shuffle([[1, 0], [-1, 0], [0, 1], [0, -1]]
+          .map(([dx, dy]) => ({ x: cur.x + dx, y: cur.y + dy }))
+          .filter((n) => n.x >= 0 && n.x < CW && n.y >= 0 && n.y < CH && !visited.has(n.x + "," + n.y)));
+        if (!nbrs.length) { stack.pop(); continue; }
+        const n = nbrs[0];
+        visited.add(n.x + "," + n.y);
+        const ct = tileOf(cur), nt = tileOf(n);
+        grid[(ct.y + nt.y) / 2][(ct.x + nt.x) / 2] = ".";
+        grid[nt.y][nt.x] = ".";
+        stack.push(n);
+      }
+
+      // 2a) 브레이딩: 막다른 셀 100% 제거 — 외나무다리에서도 항상 퇴로 확보
+      for (let cy = 0; cy < CH; cy++) for (let cx = 0; cx < CW; cx++) {
+        const t = tileOf({ x: cx, y: cy });
+        const openWalls = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+          .filter(([dx, dy]) => grid[t.y + dy]?.[t.x + dx] === ".");
+        if (openWalls.length === 1) {
+          const cands = shuffle([[1, 0], [-1, 0], [0, 1], [0, -1]]
+            .filter(([dx, dy]) => {
+              const wx = t.x + dx, wy = t.y + dy, ox = t.x + dx * 2, oy = t.y + dy * 2;
+              return grid[wy]?.[wx] === "#" && grid[oy]?.[ox] === ".";
+            }));
+          if (cands.length) grid[t.y + cands[0][1]][t.x + cands[0][0]] = ".";
+        }
+      }
+      // 2b) 추가 순환로: 통로 사이 벽 28%를 더 뚫어 도망갈 샛길 생성
+      for (let y = 1; y < ROWS - 1; y++) for (let x = 1; x < COLS - 1; x++) {
+        if (grid[y][x] !== "#") continue;
+        const h = grid[y][x - 1] !== "#" && grid[y][x + 1] !== "#";
+        const v = grid[y - 1][x] !== "#" && grid[y + 1][x] !== "#";
+        if ((h !== v) && Math.random() < 0.28) grid[y][x] = ".";
+      }
+
+      // 3) 스폰 위치 (무작위 통로)
+      const corridors = [];
+      for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) if (grid[y][x] === ".") corridors.push({ x, y });
+      const spawn = corridors[(Math.random() * corridors.length) | 0];
+
+      // 4) L/W 특수 타일 배치 — 하나씩 넣어보고 연결성 깨지면 되돌림
+      let placed = 0;
+      for (const c of shuffle([...corridors])) {
+        if (placed >= SPECIAL_TILES) break;
+        if (Math.abs(c.x - spawn.x) + Math.abs(c.y - spawn.y) < 3) continue;
+        const type = placed % 2 ? "L" : "W";
+        grid[c.y][c.x] = type;
+        if (validateMap(grid, spawn)) placed++;
+        else grid[c.y][c.x] = ".";
+      }
+
+      // 5) 사냥꾼 스폰 — 플레이어와 충분히 먼 상시 통로
+      const far = corridors.filter((c) =>
+        grid[c.y][c.x] === "." &&
+        Math.abs(c.x - spawn.x) + Math.abs(c.y - spawn.y) >= 9);
+      if (far.length < 2 || placed < 6) continue; // 재시도
+
+      shuffle(far);
+      MAP = grid.map((r) => r.join(""));
+      playerSpawn = spawn;
+      hunterSpawns = [far[0], far[1]];
+      return;
+    }
+    // 폴백 (사실상 도달 불가): 마지막 시도 그대로 사용
+  }
+
+  /* ---------- 게임 상태 ---------- */
+  let open = false, running = false, raf = null, lastT = 0;
+  let tile = 32, u = 1;
+  let phase, phaseT, timeLeft, score, lives, pellets, invincible, readyT, flashT;
+  let player, hunters;
+  let siteAudioWasPlaying = false;
+
   function makeEntity(spawn, ms) {
-    return { x: spawn.x, y: spawn.y, fx: spawn.x, fy: spawn.y, // fx/fy = 보간된 표시 위치
-      tx: spawn.x, ty: spawn.y, moving: false, t: 0, ms, dir: { x: 0, y: 0 }, want: { x: 0, y: 0 } };
+    return { x: spawn.x, y: spawn.y, fx: spawn.x, fy: spawn.y,
+      tx: spawn.x, ty: spawn.y, moving: false, t: 0, ms, dir: { x: 1, y: 0 }, want: { x: 0, y: 0 } };
   }
   function startMove(e, dx, dy) {
     e.tx = e.x + dx; e.ty = e.y + dy;
     e.dir = { x: dx, y: dy };
     e.moving = true; e.t = 0;
   }
-  function stepEntity(e, dt, isHunter) {
+  function stepEntity(e, dtMs, isHunter) {
     if (!e.moving) return;
-    e.t += dt;
+    e.t += dtMs;
     const p = Math.min(e.t / e.ms, 1);
     e.fx = e.x + (e.tx - e.x) * p;
     e.fy = e.y + (e.ty - e.y) * p;
     if (p >= 1) {
       e.x = e.tx; e.y = e.ty; e.fx = e.x; e.fy = e.y; e.moving = false;
       if (isHunter) pickHunterDir(e);
-      else tryPlayerMove();
+      else { eatAt(e.x, e.y); tryPlayerMove(); }
     }
   }
 
-  /* ---------- 플레이어 ---------- */
   function tryPlayerMove() {
-    // 예약된 방향 우선, 안 되면 진행 방향 유지
     const w = player.want;
-    if ((w.x || w.y) && passable(player.x + w.x, player.y + w.y, phase)) {
-      startMove(player, w.x, w.y);
-      return;
-    }
+    if ((w.x || w.y) && passable(player.x + w.x, player.y + w.y, phase)) { startMove(player, w.x, w.y); return; }
     const d = player.dir;
-    if ((d.x || d.y) && passable(player.x + d.x, player.y + d.y, phase)) {
-      startMove(player, d.x, d.y);
-    }
+    if ((d.x || d.y) && passable(player.x + d.x, player.y + d.y, phase)) startMove(player, d.x, d.y);
   }
 
-  /* ---------- 사냥꾼 AI: 70% 추격 / 30% 랜덤, 역주행 최소화 ---------- */
   function pickHunterDir(h) {
     const dirs = [{ x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }];
     let options = dirs.filter((d) => passable(h.x + d.x, h.y + d.y, phase));
     if (!options.length) return;
-    const back = options.filter((d) => !(d.x === -h.dir.x && d.y === -h.dir.y));
-    if (back.length) options = back;
+    const noBack = options.filter((d) => !(d.x === -h.dir.x && d.y === -h.dir.y));
+    if (noBack.length) options = noBack;
     let choice;
-    if (Math.random() < 0.7) {
+    if (Math.random() < CHASE_P) {
       options.sort((a, b) =>
         (Math.abs(h.x + a.x - player.x) + Math.abs(h.y + a.y - player.y)) -
         (Math.abs(h.x + b.x - player.x) + Math.abs(h.y + b.y - player.y)));
       choice = options[0];
-    } else {
-      choice = options[(Math.random() * options.length) | 0];
-    }
+    } else choice = options[(Math.random() * options.length) | 0];
     startMove(h, choice.x, choice.y);
   }
 
-  /* ---------- 게임 라이프사이클 ---------- */
+  function eatAt(x, y) {
+    const key = x + "," + y;
+    if (pellets.has(key)) {
+      pellets.delete(key);
+      score += PELLET_PT;
+      SND.eat();
+      if (!pellets.size) { updateHud(); endGame(true); }
+    }
+  }
+
+  /* ---------- 라이프사이클 ---------- */
   function reset() {
+    genMap(); // ★ 매 판 새 미로
     phase = "land"; phaseT = 0; timeLeft = TIME_LIMIT;
-    score = 0; lives = 3; invincible = 0;
-    player = makeEntity(PLAYER_SPAWN, PLAYER_MS);
-    hunters = HUNTER_SPAWNS.map((s) => makeEntity(s, HUNTER_MS));
-    hunters.forEach(pickHunterDir);
+    score = 0; lives = 3; invincible = 0; flashT = 0; readyT = READY_SEC;
+    player = makeEntity(playerSpawn, PLAYER_MS);
+    hunters = hunterSpawns.map((s) => makeEntity(s, HUNTER_MS));
     pellets = new Map();
     for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
       const t = at(x, y);
       if (t === "#") continue;
-      if (x === PLAYER_SPAWN.x && y === PLAYER_SPAWN.y) continue;
+      if (x === playerSpawn.x && y === playerSpawn.y) continue;
       pellets.set(x + "," + y, t === "W" ? "fish" : t === "L" ? "berry" : "dot");
     }
     updateHud();
@@ -147,8 +304,9 @@
     const best = +localStorage.getItem("wani-game-best") || 0;
     elBest.textContent = best ? "BEST " + best : "";
     elTime.textContent = Math.ceil(timeLeft);
-    elLives.textContent = "◆".repeat(lives) + "◇".repeat(3 - lives);
-    elPhase.textContent = phase === "land" ? "▲ LAND" : "▼ WATER";
+    elLives.textContent = "◆".repeat(lives) + "◇".repeat(Math.max(0, 3 - lives));
+    const remain = Math.ceil(PHASE_SEC - phaseT);
+    elPhase.textContent = (phase === "land" ? "▲ LAND " : "▼ WATER ") + remain;
     elPhase.style.color = phase === "land" ? LAND.c1 : WATER.c1;
   }
 
@@ -160,9 +318,10 @@
     showMsg(`
       <h2>WANI MAZE</h2>
       <pre class="gm-croc">  _(o)_(o)_\n~/  ~ ~ ~  \\~</pre>
-      <p>물고기와 열매를 전부 먹으면 클리어!<br>
-      사냥꾼을 피하세요 · 8초마다 땅⇄물이 바뀝니다<br>
-      <b class="gm-land">▲ LAND</b>에선 땅길만, <b class="gm-water">▼ WATER</b>에선 물길만 통행 가능</p>
+      <p>먹이를 전부 먹으면 클리어! 사냥꾼을 피하세요.<br>
+      10초마다 세계가 바뀝니다 — 매 판 미로도 새로 생성!<br>
+      <b class="gm-land">▲ LAND</b>: 잔디길(열매)만 통행 · <b class="gm-water">▼ WATER</b>: 물길(물고기)만 통행<br>
+      어두운 <b style="color:#ff5566">✕</b> 타일은 지금 못 지나가는 길입니다</p>
       <p class="gm-keys">← ↑ ↓ → / WASD / 스와이프 · ESC 종료</p>
       <button id="gm-start">[ START ]</button>`);
     document.getElementById("gm-start").onclick = begin;
@@ -171,11 +330,13 @@
   function begin() {
     reset(); hideMsg();
     running = true; lastT = performance.now();
+    SND.startBgm();
   }
 
   function endGame(win) {
     running = false;
-    if (win) score += Math.ceil(timeLeft) * 10;
+    SND.stopBgm();
+    if (win) { score += Math.ceil(timeLeft) * 10; SND.win(); } else SND.over();
     const best = Math.max(score, +localStorage.getItem("wani-game-best") || 0);
     localStorage.setItem("wani-game-best", best);
     updateHud();
@@ -191,37 +352,38 @@
 
   function loseLife() {
     lives--;
+    SND.death();
     updateHud();
     if (lives <= 0) { endGame(false); return; }
-    invincible = 2;
-    player.x = player.fx = player.tx = PLAYER_SPAWN.x;
-    player.y = player.fy = player.ty = PLAYER_SPAWN.y;
-    player.moving = false; player.dir = { x: 0, y: 0 }; player.want = { x: 0, y: 0 };
-    hunters = HUNTER_SPAWNS.map((s) => makeEntity(s, HUNTER_MS));
-    hunters.forEach(pickHunterDir);
+    invincible = 2.5;
+    readyT = 1.2;
+    player.x = player.fx = player.tx = playerSpawn.x;
+    player.y = player.fy = player.ty = playerSpawn.y;
+    player.moving = false; player.dir = { x: 1, y: 0 }; player.want = { x: 0, y: 0 };
+    hunters = hunterSpawns.map((s) => makeEntity(s, HUNTER_MS));
     flashT = 0.4;
   }
 
   /* ---------- 업데이트 ---------- */
   function update(dt) {
+    if (readyT > 0) { readyT -= dt; updateHud(); return; } // 카운트다운 중 정지
+
     timeLeft -= dt;
     if (timeLeft <= 0) { timeLeft = 0; updateHud(); endGame(false); return; }
     if (invincible > 0) invincible -= dt;
     if (flashT > 0) flashT -= dt;
 
-    // 페이즈 전환
     phaseT += dt;
     if (phaseT >= PHASE_SEC) {
       phaseT = 0;
       phase = phase === "land" ? "water" : "land";
-      flashT = 0.3;
-      // 이동 목표 타일이 막히면 이동 취소 (제자리 복귀)
+      SND.phase(phase === "water");
+      flashT = 0.35;
       for (const e of [player, ...hunters]) {
         if (e.moving && !passable(e.tx, e.ty, phase)) {
           e.tx = e.x; e.ty = e.y; e.moving = false; e.fx = e.x; e.fy = e.y;
         }
       }
-      hunters.forEach((h) => { if (!h.moving) pickHunterDir(h); });
     }
 
     if (!player.moving) tryPlayerMove();
@@ -231,128 +393,204 @@
       stepEntity(h, dt * 1000, true);
     }
 
-    // 먹이 획득
-    const key = player.x + "," + player.y;
-    if (!player.moving || (Math.abs(player.fx - player.x) < .2 && Math.abs(player.fy - player.y) < .2)) {
-      if (pellets.has(key)) {
-        pellets.delete(key);
-        score += PELLET_PT;
-        if (!pellets.size) { updateHud(); endGame(true); return; }
-      }
-    }
-
-    // 사냥꾼 충돌 (표시 좌표 기준 근접 판정)
     if (invincible <= 0) {
       for (const h of hunters) {
-        if (Math.hypot(h.fx - player.fx, h.fy - player.fy) < 0.6) { loseLife(); break; }
+        if (Math.hypot(h.fx - player.fx, h.fy - player.fy) < 0.55) { loseLife(); break; }
       }
     }
     updateHud();
   }
 
   /* ---------- 렌더 ---------- */
-  function draw() {
+  function drawTile(x, y, now) {
+    const t = at(x, y);
+    const px = x * tile, py = y * tile;
     const P = phase === "land" ? LAND : WATER;
-    const warn = phaseT > PHASE_SEC - WARN_SEC && (phaseT * 6 | 0) % 2 === 0; // 전환 예고 점멸
-    ctx.fillStyle = P.bg;
-    ctx.fillRect(0, 0, cvs.width, cvs.height);
 
-    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
-      const t = at(x, y);
-      const px = offX + x * tile, py = offY + y * tile;
-      if (t === "#") {
-        ctx.fillStyle = "#0d0d14";
-        ctx.fillRect(px + 1, py + 1, tile - 2, tile - 2);
-        ctx.strokeStyle = P.c2 + "44";
-        ctx.strokeRect(px + 1.5, py + 1.5, tile - 3, tile - 3);
-        continue;
-      }
-      const active = passable(x, y, phase);
-      // 페이즈 전용 타일 배경
-      if (t === "L") {
-        ctx.fillStyle = active ? "rgba(182,255,0,.10)" : "rgba(182,255,0,.03)";
+    if (t === "#") {
+      ctx.fillStyle = "#0d0d14";
+      ctx.fillRect(px + 1, py + 1, tile - 2, tile - 2);
+      ctx.strokeStyle = P.c2 + "33";
+      ctx.strokeRect(px + 1.5, py + 1.5, tile - 3, tile - 3);
+      return;
+    }
+    const active = passable(x, y, phase);
+    const willBlock = active && t !== "." && phaseT > PHASE_SEC - WARN_SEC; // 곧 막힐 타일
+
+    if (t === ".") { // 공용 통로
+      ctx.fillStyle = "rgba(255,255,255,.05)";
+      ctx.fillRect(px, py, tile, tile);
+    } else if (t === "L") {
+      if (active) { // 잔디밭
+        ctx.fillStyle = "rgba(182,255,0,.20)";
         ctx.fillRect(px, py, tile, tile);
-      } else if (t === "W") {
-        ctx.fillStyle = active ? "rgba(0,229,255,.10)" : "rgba(0,229,255,.03)";
+        ctx.strokeStyle = "rgba(182,255,0,.75)";
+        ctx.lineWidth = 1.5;
+        for (let i = 0; i < 3; i++) { // 풀잎
+          const gx = px + tile * (0.25 + i * 0.25), gy = py + tile * 0.78;
+          ctx.beginPath();
+          ctx.moveTo(gx, gy); ctx.lineTo(gx - 2 * u, gy - 6 * u);
+          ctx.moveTo(gx, gy); ctx.lineTo(gx + 2 * u, gy - 5 * u);
+          ctx.stroke();
+        }
+      }
+    } else if (t === "W") {
+      if (active) { // 물결
+        ctx.fillStyle = "rgba(0,229,255,.18)";
         ctx.fillRect(px, py, tile, tile);
-      }
-      if (!active) { // 막힌 길: 빗금
-        ctx.strokeStyle = warn ? "rgba(255,255,255,.5)" : "rgba(255,255,255,.14)";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(px + 3, py + tile - 3); ctx.lineTo(px + tile - 3, py + 3);
-        ctx.moveTo(px + 3, py + 3); ctx.lineTo(px + tile - 3, py + tile - 3);
-        ctx.stroke();
-        continue;
-      }
-      // 먹이
-      const pel = pellets.get(x + "," + y);
-      const cx = px + tile / 2, cy = py + tile / 2;
-      if (pel === "dot") {
-        ctx.fillStyle = "#e8e8f0";
-        ctx.fillRect(cx - 2, cy - 2, 4, 4);
-      } else if (pel === "fish") {
-        ctx.fillStyle = WATER.c1;
-        ctx.fillRect(cx - 5, cy - 3, 7, 6);       // 몸통
-        ctx.beginPath();                            // 꼬리
-        ctx.moveTo(cx + 2, cy); ctx.lineTo(cx + 6, cy - 4); ctx.lineTo(cx + 6, cy + 4);
-        ctx.fill();
-        ctx.fillStyle = "#050507"; ctx.fillRect(cx - 3, cy - 1, 2, 2); // 눈
-      } else if (pel === "berry") {
-        ctx.fillStyle = LAND.c1;
-        ctx.fillRect(cx - 4, cy - 3, 8, 7);
-        ctx.fillStyle = LAND.c2;
-        ctx.fillRect(cx - 1, cy - 6, 2, 3);        // 꼭지
+        ctx.strokeStyle = "rgba(0,229,255,.8)";
+        ctx.lineWidth = 1.5;
+        for (let i = 0; i < 2; i++) {
+          const wy = py + tile * (0.35 + i * 0.35);
+          ctx.beginPath();
+          for (let wx = 0; wx <= tile; wx += 3) {
+            const yy = wy + Math.sin((px + wx) * 0.25 + now * 5 + i * 2) * 2.2 * u;
+            wx === 0 ? ctx.moveTo(px + wx, yy) : ctx.lineTo(px + wx, yy);
+          }
+          ctx.stroke();
+        }
       }
     }
 
-    // 사냥꾼 (모자 + 몸통 픽셀)
-    for (const [i, h] of hunters.entries()) {
-      const px = offX + h.fx * tile, py = offY + h.fy * tile;
-      const body = i === 0 ? "#ff6a00" : "#ff2bd6";
-      ctx.fillStyle = body;
-      ctx.fillRect(px + 7, py + 12, tile - 14, tile - 16);           // 몸통
-      ctx.fillStyle = "#e8d9b0";
-      ctx.fillRect(px + 9, py + 8, tile - 18, 6);                    // 얼굴
-      ctx.fillStyle = "#3a2b16";
-      ctx.fillRect(px + 6, py + 5, tile - 12, 4);                    // 모자챙
-      ctx.fillRect(px + 10, py + 1, tile - 20, 5);                   // 모자
+    if (!active) { // ✕ 막힌 길 — 명확하게
+      ctx.fillStyle = "rgba(0,0,0,.55)";
+      ctx.fillRect(px, py, tile, tile);
+      ctx.strokeStyle = "rgba(255,85,102,.55)";
+      ctx.lineWidth = 2.5;
+      const m = tile * 0.28;
+      ctx.beginPath();
+      ctx.moveTo(px + m, py + m); ctx.lineTo(px + tile - m, py + tile - m);
+      ctx.moveTo(px + tile - m, py + m); ctx.lineTo(px + m, py + tile - m);
+      ctx.stroke();
+      return;
+    }
+    if (willBlock && (now * 4 | 0) % 2 === 0) { // 곧 막힘 경고 점멸
+      ctx.strokeStyle = "rgba(255,255,255,.7)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(px + 2, py + 2, tile - 4, tile - 4);
+    }
+
+    // 먹이
+    const pel = pellets.get(x + "," + y);
+    if (!pel) return;
+    const cx = px + tile / 2, cy = py + tile / 2;
+    if (pel === "dot") {
+      ctx.fillStyle = "#e8e8f0";
+      ctx.fillRect(cx - 2 * u, cy - 2 * u, 4 * u, 4 * u);
+    } else if (pel === "fish") {
+      ctx.fillStyle = "#7df9ff";
+      ctx.fillRect(cx - 5 * u, cy - 3 * u, 7 * u, 6 * u);
+      ctx.beginPath();
+      ctx.moveTo(cx + 2 * u, cy); ctx.lineTo(cx + 6 * u, cy - 4 * u); ctx.lineTo(cx + 6 * u, cy + 4 * u);
+      ctx.fill();
       ctx.fillStyle = "#050507";
-      ctx.fillRect(px + 10, py + 9, 3, 3); ctx.fillRect(px + tile - 13, py + 9, 3, 3); // 눈
-    }
-
-    // 플레이어 악어 (무적 시 점멸)
-    if (invincible <= 0 || (performance.now() / 120 | 0) % 2 === 0) {
-      const px = offX + player.fx * tile, py = offY + player.fy * tile;
-      const d = player.dir;
-      ctx.save();
-      ctx.translate(px + tile / 2, py + tile / 2);
-      if (d.x === -1) ctx.scale(-1, 1);
-      if (d.y === 1) ctx.rotate(Math.PI / 2);
-      if (d.y === -1) ctx.rotate(-Math.PI / 2);
-      ctx.fillStyle = P.c1;
-      ctx.fillRect(-tile / 2 + 4, -5, tile - 8, 10);                 // 몸통
-      ctx.fillRect(tile / 2 - 10, -3, 8, 6);                         // 주둥이
-      ctx.fillStyle = P.c2;
-      ctx.fillRect(-tile / 2 + 6, -9, 5, 5); ctx.fillRect(-tile / 2 + 14, -9, 5, 5); // 눈두덩
-      ctx.fillStyle = "#050507";
-      ctx.fillRect(-tile / 2 + 7, -8, 2, 2); ctx.fillRect(-tile / 2 + 15, -8, 2, 2); // 눈
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(tile / 2 - 8, -2, 2, 2); ctx.fillRect(tile / 2 - 5, 1, 2, 2);     // 이빨
-      ctx.restore();
-    }
-
-    // 페이즈 전환 플래시
-    if (flashT > 0) {
-      ctx.fillStyle = (phase === "land" ? "rgba(182,255,0," : "rgba(0,229,255,") + (flashT * 0.35) + ")";
-      ctx.fillRect(0, 0, cvs.width, cvs.height);
+      ctx.fillRect(cx - 3 * u, cy - 1 * u, 2 * u, 2 * u);
+    } else if (pel === "berry") {
+      ctx.fillStyle = "#d6ff4f";
+      ctx.fillRect(cx - 4 * u, cy - 2 * u, 8 * u, 7 * u);
+      ctx.fillStyle = "#ffb300";
+      ctx.fillRect(cx - 1 * u, cy - 6 * u, 2 * u, 4 * u);
     }
   }
 
-  function loop(now) {
+  /* 사냥꾼: 사파리 모자 + 조끼 + 소총 */
+  function drawHunter(h, idx, now) {
+    const px = h.fx * tile, py = h.fy * tile;
+    const bob = Math.sin(now * 7 + idx * 3) * 1.2 * u;
+    const vest = idx === 0 ? "#ff6a00" : "#ff2bd6";
+    ctx.save();
+    ctx.translate(px, py + bob);
+    // 다리
+    ctx.fillStyle = "#2c2c38";
+    ctx.fillRect(10 * u, 26 * u, 4 * u, 5 * u);
+    ctx.fillRect(18 * u, 26 * u, 4 * u, 5 * u);
+    // 조끼(몸통)
+    ctx.fillStyle = vest;
+    ctx.fillRect(8 * u, 16 * u, 16 * u, 11 * u);
+    ctx.fillStyle = "rgba(0,0,0,.35)"; // 주머니
+    ctx.fillRect(10 * u, 21 * u, 4 * u, 4 * u);
+    ctx.fillRect(18 * u, 21 * u, 4 * u, 4 * u);
+    // 얼굴
+    ctx.fillStyle = "#e8c9a0";
+    ctx.fillRect(10 * u, 9 * u, 12 * u, 7 * u);
+    ctx.fillStyle = "#050507"; // 눈 (플레이어 쪽을 노려봄)
+    const look = Math.sign(player.fx - h.fx) * 1.2 * u;
+    ctx.fillRect(12 * u + look, 11 * u, 2.5 * u, 2.5 * u);
+    ctx.fillRect(18 * u + look, 11 * u, 2.5 * u, 2.5 * u);
+    // 사파리 모자 (넓은 챙)
+    ctx.fillStyle = "#7a5b2a";
+    ctx.fillRect(6 * u, 7 * u, 20 * u, 3 * u);       // 챙
+    ctx.fillRect(10 * u, 2 * u, 12 * u, 6 * u);      // 크라운
+    ctx.fillStyle = "#4a3517";
+    ctx.fillRect(10 * u, 6 * u, 12 * u, 2 * u);      // 밴드
+    // 소총 (대각선)
+    ctx.strokeStyle = "#3a3a46";
+    ctx.lineWidth = 3 * u;
+    ctx.beginPath();
+    ctx.moveTo(4 * u, 24 * u); ctx.lineTo(28 * u, 15 * u);
+    ctx.stroke();
+    ctx.strokeStyle = "#6b4a1f"; // 개머리판
+    ctx.lineWidth = 4 * u;
+    ctx.beginPath();
+    ctx.moveTo(4 * u, 24 * u); ctx.lineTo(9 * u, 22 * u);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawPlayer(now) {
+    if (invincible > 0 && (now * 8 | 0) % 2 === 1) return; // 무적 점멸
+    const P = phase === "land" ? LAND : WATER;
+    const px = player.fx * tile, py = player.fy * tile;
+    const d = player.dir;
+    ctx.save();
+    ctx.translate(px + tile / 2, py + tile / 2);
+    if (d.x === -1) ctx.scale(-1, 1);
+    if (d.y === 1) ctx.rotate(Math.PI / 2);
+    if (d.y === -1) ctx.rotate(-Math.PI / 2);
+    const jaw = Math.abs(Math.sin(now * 6)) * 3 * u; // 오물오물
+    ctx.fillStyle = P.c1;
+    ctx.fillRect(-tile / 2 + 4 * u, -5 * u, tile - 12 * u, 10 * u);       // 몸통
+    ctx.fillRect(tile / 2 - 11 * u, -4 * u - jaw * 0.4, 9 * u, 4 * u);    // 윗턱
+    ctx.fillRect(tile / 2 - 11 * u, 1 * u + jaw * 0.4, 9 * u, 3 * u);     // 아랫턱
+    ctx.fillStyle = P.c2;
+    ctx.fillRect(-tile / 2 + 6 * u, -9 * u, 5 * u, 5 * u);                // 눈두덩
+    ctx.fillRect(-tile / 2 + 14 * u, -9 * u, 5 * u, 5 * u);
+    ctx.fillStyle = "#050507";
+    ctx.fillRect(-tile / 2 + 7 * u, -8 * u, 2 * u, 2 * u);                // 눈
+    ctx.fillRect(-tile / 2 + 15 * u, -8 * u, 2 * u, 2 * u);
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(tile / 2 - 9 * u, -1 * u, 2 * u, 2 * u);                 // 이빨
+    ctx.restore();
+  }
+
+  function draw() {
+    const now = performance.now() / 1000;
+    const P = phase === "land" ? LAND : WATER;
+    ctx.fillStyle = P.bg;
+    ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) drawTile(x, y, now);
+    for (const [i, h] of hunters.entries()) drawHunter(h, i, now);
+    drawPlayer(now);
+
+    if (flashT > 0) {
+      ctx.fillStyle = (phase === "land" ? "rgba(182,255,0," : "rgba(0,229,255,") + (flashT * 0.3) + ")";
+      ctx.fillRect(0, 0, cvs.width, cvs.height);
+    }
+    if (running && readyT > 0) { // 시작/부활 카운트다운
+      ctx.fillStyle = "rgba(0,0,0,.45)";
+      ctx.fillRect(0, 0, cvs.width, cvs.height);
+      ctx.fillStyle = "#fff";
+      ctx.font = `bold ${28 * u}px 'IBM Plex Mono', monospace`;
+      ctx.textAlign = "center";
+      ctx.fillText(readyT > 0.7 ? "READY?" : "GO!", cvs.width / 2, cvs.height / 2);
+    }
+  }
+
+  function loop(nowMs) {
     if (!open) return;
-    const dt = Math.min((now - lastT) / 1000, 0.05);
-    lastT = now;
+    const dt = Math.min((nowMs - lastT) / 1000, 0.05);
+    lastT = nowMs;
     if (running) update(dt);
     draw();
     raf = requestAnimationFrame(loop);
@@ -370,7 +608,7 @@
     if (d) {
       e.preventDefault();
       player.want = d;
-      if (!player.moving) tryPlayerMove();
+      if (!player.moving && running && readyT <= 0) tryPlayerMove();
     }
   }
   let touchStart = null;
@@ -380,19 +618,17 @@
     const dx = e.changedTouches[0].clientX - touchStart.x;
     const dy = e.changedTouches[0].clientY - touchStart.y;
     touchStart = null;
-    if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return; // 탭은 무시
-    const d = Math.abs(dx) > Math.abs(dy) ? { x: Math.sign(dx), y: 0 } : { x: 0, y: Math.sign(dy) };
-    player.want = d;
-    if (!player.moving) tryPlayerMove();
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
+    player.want = Math.abs(dx) > Math.abs(dy) ? { x: Math.sign(dx), y: 0 } : { x: 0, y: Math.sign(dy) };
+    if (!player.moving && running && readyT <= 0) tryPlayerMove();
   }
 
-  /* ---------- 캔버스 사이즈 ---------- */
   function resize() {
     const availW = window.innerWidth - 24;
-    const availH = window.innerHeight - 90; // HUD 공간
+    const availH = window.innerHeight - 90;
     tile = Math.max(18, Math.min(Math.floor(availW / COLS), Math.floor(availH / ROWS)));
+    u = tile / 32;
     cvs.width = COLS * tile; cvs.height = ROWS * tile;
-    offX = 0; offY = 0;
     ctx.imageSmoothingEnabled = false;
   }
 
@@ -403,6 +639,14 @@
       if (open) return;
       open = true;
       if (push) history.pushState({ view: "game" }, "", "#game");
+      // 사이트 오디오 일시정지 (게임 BGM과 충돌 방지)
+      const siteAudio = document.getElementById("audio-el");
+      siteAudioWasPlaying = siteAudio && !siteAudio.paused;
+      if (siteAudioWasPlaying) {
+        siteAudio.pause();
+        const btn = document.getElementById("btn-audio");
+        if (btn) btn.textContent = "▶ AUDIO";
+      }
       overlay.hidden = false;
       document.body.style.overflow = "hidden";
       resize();
@@ -418,6 +662,7 @@
     close(pop = true) {
       if (!open) return;
       open = false; running = false;
+      SND.stopBgm();
       cancelAnimationFrame(raf);
       overlay.hidden = true;
       document.body.style.overflow = "";
@@ -425,6 +670,14 @@
       window.removeEventListener("resize", resize);
       overlay.removeEventListener("touchstart", onTouchStart);
       overlay.removeEventListener("touchend", onTouchEnd);
+      // 게임 전에 사이트 오디오가 켜져 있었다면 복원
+      if (siteAudioWasPlaying) {
+        const siteAudio = document.getElementById("audio-el");
+        siteAudio?.play().then(() => {
+          const btn = document.getElementById("btn-audio");
+          if (btn) btn.textContent = "■ AUDIO";
+        }).catch(() => {});
+      }
       if (pop && location.hash === "#game") history.back();
     },
   };

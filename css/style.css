@@ -422,7 +422,7 @@ body[data-fx="off"] .glitch-text::before, body[data-fx="off"] .glitch-text::afte
   body:not([data-fx="off"]), body:not([data-fx="off"]) * { cursor: none !important; }
 }
 #croc-cursor {
-  position:fixed; left:0; top:0; z-index:1200; pointer-events:none;
+  position:fixed; left:0; top:0; z-index:2000; pointer-events:none; /* 게임 오버레이(1500)보다 위 */
   display:none; margin:-15px 0 0 -3px; /* 입 끝이 포인터 위치 */
   filter:drop-shadow(0 0 6px color-mix(in srgb,var(--c1) 60%,transparent));
 }
