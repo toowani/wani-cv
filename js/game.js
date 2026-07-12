@@ -71,6 +71,11 @@
       this.tone(440, t, 0.45, "sawtooth", 0.8, 55);
       this.tone(220, t + 0.05, 0.4, "square", 0.4, 40);
     },
+    discover() { // 이스터에그 발견 반짝임
+      this.ensure(); const t = this.ctx.currentTime;
+      [784, 988, 1319, 1760].forEach((f, i) => this.tone(f, t + i * 0.07, 0.1, "square", 0.45));
+      this.tone(2093, t + 0.3, 0.3, "triangle", 0.4);
+    },
     phase(toWater) { // 페이즈 전환 스윕
       this.ensure(); const t = this.ctx.currentTime;
       if (toWater) this.tone(700, t, 0.25, "triangle", 0.6, 250);
@@ -407,20 +412,23 @@
     const px = x * tile, py = y * tile;
     const P = phase === "land" ? LAND : WATER;
 
-    if (t === "#") {
-      ctx.fillStyle = "#0d0d14";
-      ctx.fillRect(px + 1, py + 1, tile - 2, tile - 2);
-      ctx.strokeStyle = P.c2 + "33";
-      ctx.strokeRect(px + 1.5, py + 1.5, tile - 3, tile - 3);
+    if (t === "#") { // 벽 — 확실히 보이게 (밝은 몸체 + 네온 테두리 + 상단 하이라이트)
+      ctx.fillStyle = "#20202e";
+      ctx.fillRect(px, py, tile, tile);
+      ctx.fillStyle = "#31314a";
+      ctx.fillRect(px, py, tile, 3);
+      ctx.strokeStyle = P.c2 + "aa";
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(px + 1, py + 1, tile - 2, tile - 2);
       return;
     }
     const active = passable(x, y, phase);
     const willBlock = active && t !== "." && phaseT > PHASE_SEC - WARN_SEC; // 곧 막힐 타일
 
-    if (t === ".") { // 공용 통로
-      ctx.fillStyle = "rgba(255,255,255,.05)";
-      ctx.fillRect(px, py, tile, tile);
-    } else if (t === "L") {
+    // 통로 공통 바닥 (벽과 명확히 구분)
+    ctx.fillStyle = "rgba(232,232,240,.055)";
+    ctx.fillRect(px, py, tile, tile);
+    if (t === "L") {
       if (active) { // 잔디밭
         ctx.fillStyle = "rgba(182,255,0,.20)";
         ctx.fillRect(px, py, tile, tile);
@@ -651,7 +659,20 @@
       document.body.style.overflow = "hidden";
       resize();
       reset();
-      startScreen();
+      // "이스터에그 발견!" 연출 후 시작 화면
+      hideMsg();
+      const toast = document.getElementById("egg-toast");
+      const first = !localStorage.getItem("wani-egg-found");
+      localStorage.setItem("wani-egg-found", "1");
+      toast.querySelector(".egg-sub").textContent = first
+        ? "숨겨진 게임 「WANI MAZE」를 발견했습니다!"
+        : "WANI MAZE — 다시 오셨군요, 사냥꾼들이 기다립니다";
+      toast.hidden = false;
+      SND.discover();
+      setTimeout(() => {
+        toast.hidden = true;
+        if (open) startScreen();
+      }, 1500);
       window.addEventListener("keydown", onKey);
       window.addEventListener("resize", resize);
       overlay.addEventListener("touchstart", onTouchStart, { passive: true });

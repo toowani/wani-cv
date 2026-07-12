@@ -247,7 +247,8 @@
     nav.querySelectorAll(".map-node").forEach((b) => {
       const on = b.dataset.target === id;
       b.classList.toggle("active", on);
-      if (on) active = b;
+      if (on) { active = b; b.setAttribute("aria-current", "true"); }
+      else b.removeAttribute("aria-current");
     });
     const croc = $("#map-croc");
     if (active && croc) croc.style.top = (active.offsetTop + active.offsetHeight / 2) + "px";

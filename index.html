@@ -14,6 +14,26 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <meta name="theme-color" content="#050507">
+<!-- 검색엔진용 구조화 데이터 (배포 후 url을 실제 주소로 교체) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Changwan Kim",
+  "alternateName": "wani",
+  "url": "https://toowani.github.io/",
+  "email": "mailto:changwan@gm.gist.ac.kr",
+  "affiliation": { "@type": "CollegeOrUniversity", "name": "GIST (Gwangju Institute of Science and Technology)" },
+  "jobTitle": "EECS Student · Electronic Music Artist",
+  "sameAs": [
+    "https://github.com/toowani",
+    "https://linkedin.com/in/toowani",
+    "https://www.youtube.com/@toowani",
+    "https://instagram.com/toowani",
+    "https://soundcloud.com/toowani"
+  ]
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Archivo+Black&family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet">
@@ -154,6 +174,10 @@
      EASTER EGG : 악어 미로 게임 (홈에서 WANI.SYS 로고 3연타)
 ============================================================ -->
 <div id="game-overlay" hidden>
+  <div id="egg-toast" hidden>
+    <p class="egg-title glitch-text" data-text="EASTER EGG!">EASTER EGG!</p>
+    <p class="egg-sub"></p>
+  </div>
   <div id="game-hud">
     <span id="g-score">SCORE 0</span>
     <span id="g-best"></span>

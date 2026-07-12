@@ -13,6 +13,23 @@ js/main.js          부팅 시퀀스, 모드/언어/FX 전환, 스크롤 연출
 assets/audio/       track.mp3 를 넣으면 오디오 반응형 비주얼 활성화
 ```
 
+## 이력서 PDF 재생성
+
+`assets/resume_wani.pdf`는 `scripts/make_resume.py`로 생성됩니다. 사이트 내용(js/data.js)을 수정했다면 스크립트도 맞춰 고친 뒤 재실행하세요:
+
+```
+pip install reportlab koreanize-matplotlib
+python scripts/make_resume.py
+```
+
+## 배포 후 교체할 URL (현재 `https://toowani.github.io/`로 임시 설정)
+
+`index.html`의 og:url·JSON-LD url, `robots.txt`의 Sitemap 주소, `sitemap.xml`의 loc
+
+## 이스터에그
+
+홈 화면에서 좌측 상단 WANI.SYS 로고를 빠르게 3번 클릭 → 악어 미로 게임 「WANI MAZE」 (매 판 랜덤 미로, 칩튠 BGM, 최고점수 저장)
+
 ## 콘텐츠 교체 방법
 
 `js/data.js`를 열어 `[교체]` / `[replace]` 표시가 있는 값을 실제 내용으로 바꾸면 됩니다. 모든 텍스트는 `{ ko: "...", en: "..." }` 형태로 한국어/영어를 같이 가집니다. 링크 URL(`your-id` 부분)도 잊지 말고 교체하세요.

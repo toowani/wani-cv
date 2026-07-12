@@ -246,6 +246,11 @@
      ============================================================ */
   function frame() {
     T += 0.016;
+    // 게임 오버레이가 열려 있으면 배경 연산 전부 스킵 (GPU 절약)
+    if (window.WANI_GAME?.isOpen()) {
+      requestAnimationFrame(frame);
+      return;
+    }
     if (!running || fxLevel() === "off") {
       bgCtx.fillStyle = "#050507";
       bgCtx.fillRect(0, 0, W, H);
