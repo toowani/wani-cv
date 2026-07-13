@@ -89,10 +89,10 @@
   </div>
   <nav id="hud-controls">
     <button id="btn-mode" class="hud-btn" title="모드 전환">⇄ <span data-ui="switchMode">모드 전환</span></button>
-    <button id="btn-audio" class="hud-btn" title="오디오 재생/정지">▶ AUDIO</button>
+    <button id="btn-audio" class="hud-btn" title="오디오 재생/정지">▶ <span class="btn-label">AUDIO</span></button>
     <button id="btn-lang" class="hud-btn" title="Language">KO/EN</button>
     <button id="btn-fx" class="hud-btn" title="이펙트 강도">FX:HIGH</button>
-    <button id="btn-print" class="hud-btn" title="전체 이력 인쇄/저장">⎙ PRINT</button>
+    <button id="btn-print" class="hud-btn" title="전체 이력 인쇄/저장">⎙ <span class="btn-label">PRINT</span></button>
   </nav>
 </header>
 
@@ -128,13 +128,49 @@
   <!-- 수면 위 중앙 타이틀 + 악어 -->
   <div id="landing-center" aria-hidden="true">
     <p class="landing-eyebrow" data-ui="landingEyebrow">// HALF ON LAND, HALF IN WATER</p>
-    <h1 class="landing-title glitch-text" data-text="WANI">WANI</h1>
+    <h1 class="landing-title glitch-text" data-text="WANI" role="button" tabindex="0"
+        title="LIFE MAP — 시간 여행 지도 열기">WANI</h1>
     <pre class="croc-ascii" id="croc">            _   _
           _(o)_(o)_
    ~~~~~~/  ~ ~ ~  \_______.~~~~~~
     \/\_/  t o o w a n i  /\_/\/
         '--..________..--'</pre>
     <p class="landing-id" data-ui="landingId">김창완 KIM CHANGWAN · GIST 전기전자컴퓨터공학 · @toowani</p>
+    <p class="landing-map-hint" data-ui="mapHint">[ TAP WANI → LIFE MAP ]</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     LIFE MAP : WANI 타이틀 클릭 → 악어가 걸어온 시간 여행 지도
+     (세로 스크롤 → 지도가 왼쪽에서 오른쪽으로 흐름)
+============================================================ -->
+<section id="journey" hidden>
+  <div id="jy-sticky">
+    <div id="jy-year" aria-hidden="true"></div>
+    <div id="jy-track">
+      <svg id="jy-svg" aria-hidden="true"></svg>
+      <div id="jy-nodes"></div>
+      <div id="jy-croc" aria-hidden="true">
+        <svg width="66" height="38" viewBox="0 0 66 38">
+          <rect x="0"  y="15" width="10" height="5"  fill="var(--land1)"/>
+          <rect x="8"  y="11" width="34" height="12" fill="var(--land1)"/>
+          <rect x="13" y="8"  width="4"  height="4"  fill="var(--water1)"/>
+          <rect x="21" y="8"  width="4"  height="4"  fill="var(--water1)"/>
+          <rect x="29" y="8"  width="4"  height="4"  fill="var(--water1)"/>
+          <rect x="40" y="7"  width="9"  height="9"  fill="var(--land1)"/>
+          <rect x="43" y="9"  width="3"  height="3"  fill="#050507"/>
+          <rect x="47" y="12" width="17" height="6"  fill="var(--land1)"/>
+          <rect x="50" y="18" width="2"  height="2"  fill="#fff"/>
+          <rect x="56" y="18" width="2"  height="2"  fill="#fff"/>
+          <rect class="leg leg-a" x="13" y="23" width="5" height="9" fill="var(--water2)"/>
+          <rect class="leg leg-b" x="25" y="23" width="5" height="9" fill="var(--water2)"/>
+          <rect class="leg leg-a" x="36" y="23" width="5" height="9" fill="var(--water2)"/>
+        </svg>
+      </div>
+    </div>
+    <div class="jy-side-label jy-label-land" data-ui="jyLand">▲ ON LAND — DEV</div>
+    <div class="jy-side-label jy-label-water" data-ui="jyWater">▼ IN WATER — MUSIC</div>
+    <p id="jy-hint" data-ui="jyHint">SCROLL ↓</p>
   </div>
 </section>
 
@@ -192,6 +228,7 @@
 
 <script src="js/data.js"></script>
 <script src="js/engine.js"></script>
+<script src="js/journey.js"></script>
 <script src="js/game.js"></script>
 <script src="js/main.js"></script>
 </body>

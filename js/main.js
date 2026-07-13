@@ -262,6 +262,7 @@
     mode = m;
     body.dataset.mode = m;
     $("#landing").hidden = true;
+    $("#journey").hidden = true;
     $("#content").hidden = false;
     $("#site-footer").hidden = false;
     $("#hud-mode-label").textContent = "MODE: " + (m === "dev" ? "DEV_WANI" : "ARTIST_WANI");
@@ -287,6 +288,7 @@
     mode = "none";
     body.dataset.mode = "none";
     $("#content").hidden = true;
+    $("#journey").hidden = true;
     $("#site-footer").hidden = true;
     $("#map-nav").hidden = true;
     $("#landing").hidden = false;
@@ -295,14 +297,41 @@
     window.scrollTo({ top: 0, behavior: "instant" });
   }
 
+  /* ---------- LIFE MAP (journey) — WANI 타이틀 클릭 ---------- */
+  function applyJourney() {
+    mode = "journey";
+    body.dataset.mode = "journey"; // dev/artist가 아니므로 혼합(기본) 팔레트
+    $("#landing").hidden = true;
+    $("#content").hidden = true;
+    $("#site-footer").hidden = true;
+    $("#map-nav").hidden = true;
+    $("#journey").hidden = false;
+    $("#hud-mode-label").textContent = "MODE: LIFE.MAP";
+    setTicker("journey");
+    window.scrollTo({ top: 0, behavior: "instant" });
+    window.WANI_JOURNEY_MAP.build();
+  }
+
+  function enterJourney(push = true) {
+    if (push) history.pushState({ view: "journey" }, "", "#journey");
+    if (fx === "off") { applyJourney(); return; }
+    const flash = $("#mode-flash");
+    flash.classList.remove("active");
+    void flash.offsetWidth;
+    flash.classList.add("active");
+    setTimeout(applyJourney, 200);
+  }
+
   window.addEventListener("popstate", (e) => {
     const v = e.state?.view ||
       (location.hash === "#dev" ? "dev" :
        location.hash === "#artist" ? "artist" :
+       location.hash === "#journey" ? "journey" :
        location.hash === "#game" ? "game" : "home");
     if (v === "game") { window.WANI_GAME?.open(false); return; }
     if (window.WANI_GAME?.isOpen()) window.WANI_GAME.close(false);
     if (v === "dev" || v === "artist") setMode(v, false);
+    else if (v === "journey") enterJourney(false);
     else goHome(false);
   });
 
@@ -341,6 +370,7 @@
      ============================================================ */
   $("#btn-mode").addEventListener("click", () => {
     if (mode === "none") return;
+    if (mode === "journey") { setMode("dev"); return; }
     setMode(mode === "dev" ? "artist" : "dev");
   });
 
@@ -349,7 +379,8 @@
     localStorage.setItem("wani-lang", lang);
     body.dataset.lang = lang;
     applyUI();
-    if (mode !== "none") renderMode(mode);
+    if (mode === "journey") window.WANI_JOURNEY_MAP.build();
+    else if (mode !== "none") renderMode(mode);
   });
 
   $("#btn-fx").addEventListener("click", () => {
@@ -360,20 +391,24 @@
   });
   $("#btn-fx").textContent = "FX:" + fx.toUpperCase();
 
+  /* 아이콘 + 라벨 구조 유지 (모바일에선 CSS가 라벨을 숨겨 아이콘만 표시) */
+  function setAudioBtn(icon, label) {
+    $("#btn-audio").innerHTML = icon + ' <span class="btn-label">' + label + "</span>";
+  }
   $("#btn-audio").addEventListener("click", () => {
     WANI_AUDIO.toggle()
       .then(() => {
-        $("#btn-audio").textContent = WANI_AUDIO.isPlaying() ? "■ AUDIO" : "▶ AUDIO";
+        setAudioBtn(WANI_AUDIO.isPlaying() ? "■" : "▶", "AUDIO");
       })
       .catch(() => {
         // 음원 파일 없음 → 힌트 표시
-        $("#btn-audio").textContent = "✕ NO TRACK";
-        setTimeout(() => { $("#btn-audio").textContent = "▶ AUDIO"; }, 2000);
+        setAudioBtn("✕", "NO TRACK");
+        setTimeout(() => setAudioBtn("▶", "AUDIO"), 2000);
       });
   });
   document.getElementById("audio-el").addEventListener("error", () => {
-    $("#btn-audio").textContent = "✕ NO TRACK";
-    setTimeout(() => { $("#btn-audio").textContent = "▶ AUDIO"; }, 2000);
+    setAudioBtn("✕", "NO TRACK");
+    setTimeout(() => setAudioBtn("▶", "AUDIO"), 2000);
   });
 
   /* ============================================================
@@ -449,6 +484,16 @@
     btn.addEventListener("click", () => setMode(btn.dataset.choose))
   );
 
+  /* WANI 타이틀 → LIFE MAP (클릭/키보드) */
+  const landingTitle = document.querySelector(".landing-title");
+  landingTitle.addEventListener("click", () => enterJourney());
+  landingTitle.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); enterJourney(); }
+  });
+
+  /* journey.js 등 외부 모듈에서 모드 전환할 수 있게 노출 */
+  window.WANI_NAV = { setMode, goHome };
+
   /* ============================================================
      CROC CURSOR — 입 벌린 악어 / 클릭 깨물기 / 스크롤 회전
      ============================================================ */
@@ -482,11 +527,14 @@
   /* ---------- init ---------- */
   applyUI();
   setTicker("none");
-  // 해시 딥링크: #dev / #artist 로 직접 진입 가능
+  // 해시 딥링크: #dev / #artist / #journey 로 직접 진입 가능
   const initHash = location.hash.replace("#", "");
   if (initHash === "dev" || initHash === "artist") {
     history.replaceState({ view: initHash }, "", "#" + initHash);
     applyMode(initHash);
+  } else if (initHash === "journey") {
+    history.replaceState({ view: "journey" }, "", "#journey");
+    applyJourney();
   } else {
     history.replaceState({ view: "home" }, "", location.pathname + location.search);
   }

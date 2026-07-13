@@ -159,7 +159,9 @@ button { font-family: var(--mono); cursor:pointer; }
 ============================================================ */
 #landing[hidden], #content[hidden], #site-footer[hidden] { display:none !important; }
 #landing {
-  position:relative; z-index:10; height:100vh;
+  position:relative; z-index:10;
+  height:100vh;
+  height:100dvh; /* 모바일 주소창 변화 대응 */
   display:flex; flex-direction:column;
 }
 .half {
@@ -592,14 +594,185 @@ body[data-fx="off"] #croc-cursor { display:none !important; }
 #game-msg #gm-quit { border-color:var(--dim); color:var(--dim); }
 #game-msg #gm-quit:hover { background:var(--dim); color:#000; box-shadow:none; }
 
+/* ============================================================
+   LIFE MAP — WANI 타이틀 클릭 → 악어가 걸어온 시간 여행 지도
+============================================================ */
+.landing-title { pointer-events:auto; cursor:pointer; transition:transform .2s, filter .2s; }
+.landing-title:hover, .landing-title:focus-visible {
+  transform:scale(1.03);
+  filter:drop-shadow(0 0 35px rgba(0,229,255,.55)) drop-shadow(0 0 35px rgba(182,255,0,.35));
+}
+.landing-map-hint {
+  font-family:var(--mono); font-size:10px; letter-spacing:2px; color:var(--dim);
+  margin-top:8px; animation:map-hint-pulse 1.8s ease-in-out infinite;
+}
+@keyframes map-hint-pulse { 0%,100% { opacity:.45; } 50% { opacity:1; } }
+.landing-map-hint b { color:var(--c2); }
+
+#journey[hidden] { display:none !important; }
+#journey { position:relative; z-index:10; }
+#jy-sticky {
+  position:sticky; top:0; overflow:hidden;
+  height:100vh; height:100dvh;
+}
+/* 배경 고스트 연도 — 악어의 현재 위치 */
+#jy-year {
+  position:absolute; left:50%; top:45%; transform:translate(-50%,-50%);
+  z-index:0; pointer-events:none; user-select:none;
+  font-family:var(--disp); font-size:clamp(110px,26vw,320px); line-height:1;
+  color:transparent;
+  -webkit-text-stroke:2px color-mix(in srgb, var(--c1) 22%, transparent);
+  filter:drop-shadow(0 0 30px color-mix(in srgb, var(--c1) 10%, transparent));
+}
+#jy-year.tick { animation:jy-year-pop .45s steps(5); }
+@keyframes jy-year-pop {
+  0% { opacity:.15; transform:translate(-50%,-50%) scale(1.05) skewX(-5deg); }
+  60% { opacity:.8; transform:translate(-49%,-50%) skewX(3deg); }
+  100% { opacity:1; transform:translate(-50%,-50%); }
+}
+
+#jy-track { position:absolute; left:0; top:0; height:100%; will-change:transform; }
+#jy-svg { position:absolute; left:0; top:0; }
+#jy-nodes { position:absolute; inset:0; }
+
+/* 경로 위 지점 + 연결 스템 */
+.jy-dot {
+  position:absolute; width:10px; height:10px; z-index:2;
+  transform:translate(-50%,-50%) rotate(45deg);
+  background:var(--bg); border:2px solid;
+}
+.jy-dot.land  { border-color:var(--land1);  box-shadow:0 0 10px var(--land1); }
+.jy-dot.water { border-color:var(--water1); box-shadow:0 0 10px var(--water1); }
+.jy-stem { position:absolute; width:0; transform:translateX(-50%); border-left:1px dashed; opacity:.5; }
+.jy-stem.land  { border-color:var(--land1); }
+.jy-stem.water { border-color:var(--water1); }
+
+/* 이벤트 카드 — 위(땅/개발), 아래(물/음악) */
+.jy-card {
+  position:absolute; width:230px; transform:translateX(-50%);
+  padding:12px 14px; text-align:center;
+  background:rgba(8,8,12,.88); border:1px solid rgba(255,255,255,.16);
+  opacity:.72; transition:border-color .25s, box-shadow .25s, opacity .25s;
+}
+.jy-card.land  { border-top:2px solid var(--land1); }
+.jy-card.water { border-bottom:2px solid var(--water1); }
+.jy-card.near  { opacity:1; }
+.jy-card.land.near  { border-color:var(--land1);  box-shadow:0 0 26px rgba(182,255,0,.22); }
+.jy-card.water.near { border-color:var(--water1); box-shadow:0 0 26px rgba(0,229,255,.22); }
+.jy-year { font-family:var(--mono); font-size:10px; letter-spacing:1px; }
+.jy-card.land  .jy-year { color:var(--land2); }
+.jy-card.water .jy-year { color:var(--water3); }
+.jy-title { font-size:14px; font-weight:900; margin:4px 0 2px; color:var(--fg); }
+.jy-sub { font-family:var(--mono); font-size:10px; color:var(--dim); }
+.jy-desc {
+  font-size:11px; color:var(--dim); line-height:1.7; margin-top:6px; cursor:pointer;
+  display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+}
+.jy-card.open .jy-desc { -webkit-line-clamp:unset; max-height:170px; overflow:auto; }
+.jy-tags { display:flex; flex-wrap:wrap; gap:4px; justify-content:center; margin-top:8px; }
+.jy-tags span {
+  font-family:var(--mono); font-size:9px; letter-spacing:1px;
+  padding:1px 6px; border:1px solid rgba(255,255,255,.25); color:var(--dim);
+}
+
+/* 걷는 악어 */
+#jy-croc {
+  position:absolute; z-index:5; pointer-events:none;
+  transform:translate(-55%,-90%) rotate(var(--tilt,0deg));
+  filter:drop-shadow(0 0 8px rgba(182,255,0,.5));
+}
+#jy-croc .leg { transform-origin:center top; }
+#jy-croc.walk .leg-a { animation:jy-step .32s steps(2) infinite; }
+#jy-croc.walk .leg-b { animation:jy-step .32s steps(2) infinite reverse; }
+@keyframes jy-step { 0%,100% { transform:rotate(13deg); } 50% { transform:rotate(-13deg); } }
+
+/* 깃발·종점 CTA·라벨·힌트 */
+.jy-flag {
+  position:absolute; transform:translate(-50%,-210%); white-space:nowrap;
+  font-family:var(--mono); font-size:12px; letter-spacing:2px;
+  color:var(--c2); text-shadow:0 0 12px var(--c2);
+}
+.jy-flag.end { color:var(--c1); text-shadow:0 0 12px var(--c1); }
+.jy-cta { position:absolute; transform:translateX(-50%); display:flex; flex-direction:column; gap:8px; }
+.jy-cta button {
+  font-family:var(--mono); font-size:11px; letter-spacing:2px;
+  padding:9px 16px; background:rgba(5,5,7,.7); white-space:nowrap; transition:.15s;
+}
+.jy-cta button[data-jy-go="dev"] { border:1px solid var(--land1); color:var(--land1); }
+.jy-cta button[data-jy-go="dev"]:hover { background:var(--land1); color:#000; box-shadow:0 0 22px var(--land1); }
+.jy-cta button[data-jy-go="artist"] { border:1px solid var(--water1); color:var(--water1); }
+.jy-cta button[data-jy-go="artist"]:hover { background:var(--water1); color:#000; box-shadow:0 0 22px var(--water1); }
+.jy-side-label {
+  position:absolute; left:18px; z-index:6; pointer-events:none;
+  font-family:var(--mono); font-size:10px; letter-spacing:3px;
+}
+.jy-label-land  { top:86px; color:var(--land1); text-shadow:0 0 10px rgba(182,255,0,.5); }
+.jy-label-water { bottom:44px; color:var(--water1); text-shadow:0 0 10px rgba(0,229,255,.5); }
+#jy-hint {
+  position:absolute; left:50%; bottom:40px; transform:translateX(-50%); z-index:6;
+  font-family:var(--mono); font-size:11px; letter-spacing:2px; color:var(--fg);
+  background:rgba(5,5,7,.7); border:1px dashed color-mix(in srgb,var(--c1) 50%,transparent);
+  padding:8px 14px; white-space:nowrap; transition:opacity .4s;
+}
+#jy-hint.off { opacity:0; }
+
 /* ---------- responsive ---------- */
 @media (max-width: 720px) {
-  #hud { flex-wrap:wrap; gap:8px; padding:8px 12px; }
+  /* --- HUD: 로고 + 아이콘 버튼 한 줄 --- */
+  #hud { flex-wrap:nowrap; gap:10px; padding:8px 10px; }
+  #logo { font-size:15px; letter-spacing:1px; white-space:nowrap; }
   #hud-status { display:none; }
-  .ticker-top { top:88px; }
-  #content { padding-top:170px; }
+  #hud-controls { flex-wrap:nowrap; gap:5px; }
+  .hud-btn { font-size:11px; padding:6px 8px; letter-spacing:0; white-space:nowrap; }
+  .hud-btn .btn-label, .hud-btn [data-ui] { display:none; } /* 라벨 숨김 → 아이콘만 */
+  .ticker-top { top:41px; }
+
+  /* --- 랜딩: 중앙 블록 축소 (전부 유지) --- */
+  .landing-title { font-size:clamp(44px,15vw,80px); }
+  .landing-eyebrow { font-size:10px; letter-spacing:2px; }
+  .croc-ascii { font-size:8px; }
+  .landing-id {
+    font-size:10px; letter-spacing:1px; margin-top:10px;
+    padding:5px 10px; max-width:92vw;
+  }
+  .half-land { padding-top:15vh; }
+  .half-water { padding-bottom:7vh; }
+  .half-inner { padding:0 16px; }
+  .half-title { font-size:clamp(24px,7vw,34px); }
+  .half-tag { font-size:11px; letter-spacing:3px; }
+  .half-desc { font-size:12px; }
+
+  /* --- 콘텐츠 --- */
+  #content { padding:120px 5vw 110px; }
+  .section-block { margin-bottom:90px; }
   .section-ghost { display:none; }
-  .half-land { padding-top:17vh; }
-  .half-water { padding-bottom:8vh; }
-  .landing-title { font-size:clamp(48px,17vw,90px); }
+  .section-head { gap:10px; margin-bottom:26px; }
+  .term-box { font-size:12px; padding:16px 14px; overflow-wrap:break-word; }
+  .section-body p { font-size:14px; }
+  .card-grid { grid-template-columns:minmax(0,1fr); }
+  .tr-sem { overflow-x:auto; } /* 성적표 테이블 가로 스크롤 */
+  .tr-sem summary { padding:12px; flex-wrap:wrap; }
+  .tr-table { font-size:11px; }
+  .tr-table th, .tr-table td { padding:6px; }
+  .tl-desc { padding:0 10px; }
+  .link-big { font-size:12px; padding:12px 18px; letter-spacing:1px; }
+  .cross-cta-btn { font-size:14px; padding:14px 22px; }
+
+  /* --- LIFE MAP --- */
+  .jy-card { width:200px; padding:10px 12px; }
+  .jy-title { font-size:13px; }
+  .jy-desc { font-size:10px; }
+  .jy-side-label { font-size:9px; letter-spacing:2px; }
+  .jy-label-land { top:74px; }
+  .jy-label-water { bottom:72px; } /* 힌트와 겹침 방지 */
+  #jy-hint { font-size:10px; padding:6px 10px; bottom:36px; }
+  .jy-flag { font-size:11px; }
+  .landing-map-hint { font-size:9px; }
+}
+
+/* 초소형 화면(≤400px) — HUD가 확실히 한 줄에 들어가게 */
+@media (max-width: 400px) {
+  #logo { font-size:13px; }
+  #hud-controls { gap:4px; }
+  .hud-btn { font-size:10px; padding:5px 6px; }
 }

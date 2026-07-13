@@ -24,6 +24,12 @@ const SITE_DATA = {
       crossToDev: "땅 위의 나도 있다 — 개발하는 wani 보러 가기",
       crossDive: "▼ DIVE IN",
       crossSurface: "▲ SURFACE",
+      mapHint: "[ <b>WANI</b>를 누르면 → LIFE MAP ]",
+      jyLand: "▲ ON LAND — 개발",
+      jyWater: "▼ IN WATER — 음악 · 영상",
+      jyHint: "스크롤 ↓ 악어가 시간을 거슬러 걷습니다 →",
+      jyStart: "START · 2022",
+      jyNow: "NOW",
     },
     en: {
       switchMode: "SWITCH MODE",
@@ -40,6 +46,12 @@ const SITE_DATA = {
       crossToDev: "There's another me on land — meet wani the developer",
       crossDive: "▼ DIVE IN",
       crossSurface: "▲ SURFACE",
+      mapHint: "[ TAP <b>WANI</b> → LIFE MAP ]",
+      jyLand: "▲ ON LAND — DEV",
+      jyWater: "▼ IN WATER — MUSIC · VISUAL",
+      jyHint: "SCROLL ↓ the croc walks back through time →",
+      jyStart: "START · 2022",
+      jyNow: "NOW",
     },
   },
 
@@ -47,6 +59,7 @@ const SITE_DATA = {
   ticker: {
     dev:    "DEV_WANI :: GIST EECS :: AI / ML :: KAIST → UC BERKELEY :: @toowani :: ",
     artist: "ARTIST_WANI :: HIPHOP × ELECTRONIC :: VORTEX CRACK LOADING :: @toowani :: ",
+    journey: "LIFE.MAP :: NOW → 2022 :: ONE CROC, TWO WORLDS :: LAND ▲ × ▼ WATER :: @toowani :: ",
     none:   "WANI.SYS :: HALF ON LAND, HALF IN WATER :: SELECT MODE :: @toowani :: ",
   },
 
