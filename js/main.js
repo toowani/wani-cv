@@ -303,7 +303,7 @@
     $("#journey").hidden = true;
     $("#content").hidden = false;
     $("#site-footer").hidden = false;
-    $("#hud-mode-label").textContent = "MODE: " + (m === "dev" ? "DEV_WANI" : "ARTIST_WANI");
+    $("#hud-mode-label").textContent = "MODE: " + (m === "dev" ? "R&D_WANI" : "ART_WANI");
     setTicker(m);
     renderMode(m);
     window.scrollTo({ top: 0, behavior: "instant" });

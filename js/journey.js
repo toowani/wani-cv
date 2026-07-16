@@ -129,8 +129,8 @@
       <div class="jy-flag end" style="left:${xS}px;top:${pathY(xS).toFixed(0)}px">⚑ ${ui.jyNow}</div>
       <div class="jy-flag" style="left:${xE}px;top:${pathY(xE).toFixed(0)}px">⚑ ${ui.jyStart}</div>
       <div class="jy-cta" style="left:${xE}px;top:${(pathY(xE) + 56).toFixed(0)}px">
-        <button data-jy-go="dev">▲ DEV_WANI</button>
-        <button data-jy-go="artist">▼ ARTIST_WANI</button>
+        <button data-jy-go="dev">▲ R&D_WANI</button>
+        <button data-jy-go="artist">▼ ART_WANI</button>
       </div>`;
 
     nodesEl.innerHTML = html;

@@ -682,7 +682,7 @@ body[data-fx="off"] #croc-cursor { display:none !important; }
 /* WANI 옆 사전풀이 주석 — 은은한 회색 (그라데이션 클립 영향 없이 자체 색) */
 .wani-note {
   display:inline-block; vertical-align:baseline;
-  max-width:250px; margin-left:20px;
+  max-width:300px; margin-left:20px;
   font-family:var(--kr); font-weight:400; font-size:12px;
   letter-spacing:0; line-height:1.75; text-align:left;
   color:var(--dim); opacity:.8;
