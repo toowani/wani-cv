@@ -13,24 +13,27 @@
   let fx = localStorage.getItem("wani-fx") ||
     (matchMedia("(prefers-reduced-motion: reduce)").matches ? "off" : "high");
   let mode = "none"; // "dev" | "artist"
+  let theme = localStorage.getItem("wani-theme") || "dark";
 
   body.dataset.lang = lang;
   body.dataset.fx = fx;
+  if (theme === "light") body.dataset.theme = "light";
 
   /* ============================================================
      BOOT SEQUENCE — 터미널 부팅 연출
      ============================================================ */
   const BOOT_LINES = [
-    "WANI.SYS v4.0 — amphibian identity kernel",
-    "> scanning habitat ................ LAND ✓ WATER ✓",
-    "> mount /dev/land   (academics) ... OK",
-    "> mount /dev/water  (music) ....... OK",
-    "> waking the crocodile ............ OK",
+    "WANI.SYS v5.0",
+    "> init display .................... OK",
+    "> load profile .................... KIM CHANGWAN / GIST EECS",
+    "> load modules .................... ML · DSP · AUDIO",
+    "> mount /dev  (engineering) ....... OK",
+    "> mount /wav  (music) ............. OK",
     "        _   _",
     "      _(o)_(o)_",
     "  ~~~/  ~ ~ ~  \\_____.~~~",
-    "> handle check .................... @toowani (\"완전 나답게\")",
-    "> WELCOME TO BOTH WORLDS.",
+    "> handle .......................... @toowani",
+    "> READY.",
   ];
   function runBoot() {
     const boot = $("#boot");
@@ -102,6 +105,38 @@
       </article>`).join("") + `</div>`;
   }
 
+  /* DEV — 아카이브/레포 목록형 1열 리스트 (고밀도) */
+  function renderList(items) {
+    return `<div class="dev-list">` + items.map((it) => `
+      <article class="dl-row reveal">
+        <div class="dl-meta">${loc(it.year) ?? ""}</div>
+        <div class="dl-main">
+          <h3 class="dl-title">${esc(it.title[lang] ?? it.title)}</h3>${it.sub ? `<span class="dl-sub">${loc(it.sub)}</span>` : ""}
+          <p class="dl-desc">${esc(it.desc?.[lang] ?? "")}</p>
+          <div class="dl-foot">
+            ${it.tags ? it.tags.map((t) => `<span class="dl-tag">[${t}]</span>`).join("") : ""}
+            ${it.link ? `<a href="${it.link.url}" target="_blank" rel="noopener">${it.link.label[lang]} ↗</a>` : ""}
+          </div>
+        </div>
+      </article>`).join("") + `</div>`;
+  }
+
+  /* ARTIST — 앨범 크레딧형 트랙리스트 (큰 타이포) */
+  function renderTracks(items, secIdx) {
+    const side = String.fromCharCode(65 + (secIdx % 26)); // A, B, C…
+    return `<div class="tracklist">` + items.map((it, i) => `
+      <article class="trk reveal">
+        <div class="trk-no">${side}${i + 1}</div>
+        <div class="trk-main">
+          <h3 class="trk-title">${esc(it.title[lang] ?? it.title)}</h3>
+          <div class="trk-meta">${it.year ? `<span class="trk-year">${loc(it.year)}</span>` : ""}${it.sub ? loc(it.sub) : ""}</div>
+          <p class="trk-desc">${esc(it.desc?.[lang] ?? "")}</p>
+          ${it.tags ? `<div class="trk-credits">${it.tags.map((t) => `<span>${t}</span>`).join("")}</div>` : ""}
+          ${it.link ? `<a class="trk-link" href="${it.link.url}" target="_blank" rel="noopener">${it.link.label[lang]}</a>` : ""}
+        </div>
+      </article>`).join("") + `</div>`;
+  }
+
   function renderTimeline(items) {
     return `<div class="timeline">` + items.map((it) => `
       <div class="tl-item reveal">
@@ -167,6 +202,7 @@
       </section>
       <p class="audio-hint reveal">${SITE_DATA.ui[lang].audioHint}</p>`;
 
+    let trackSec = 0;
     for (const sec of data.sections) {
       html += `
       <section class="section-block reveal" id="sec-${sec.id}">
@@ -177,6 +213,8 @@
         <div class="section-ghost">${sec.ghost}</div>
         <div class="section-body">
           ${sec.type === "cards" ? renderCards(sec.items)
+            : sec.type === "list" ? renderList(sec.items)
+            : sec.type === "tracks" ? renderTracks(sec.items, trackSec++)
             : sec.type === "timeline" ? renderTimeline(sec.items)
             : sec.type === "transcript" ? renderTranscript(sec)
             : renderLinks(sec.items, sec.note)}
@@ -209,8 +247,8 @@
   const MAP_CROC_SVG = `<svg width="26" height="16" viewBox="0 0 26 16">
     <rect x="3" y="0" width="4" height="4" fill="var(--c2)"/>
     <rect x="11" y="0" width="4" height="4" fill="var(--c2)"/>
-    <rect x="4" y="1" width="2" height="2" fill="#050507"/>
-    <rect x="12" y="1" width="2" height="2" fill="#050507"/>
+    <rect x="4" y="1" width="2" height="2" fill="#0f0f0f"/>
+    <rect x="12" y="1" width="2" height="2" fill="#0f0f0f"/>
     <rect x="0" y="6" width="26" height="5" fill="var(--c1)"/>
     <rect x="4" y="11" width="3" height="2" fill="#fff"/>
     <rect x="12" y="11" width="3" height="2" fill="#fff"/>
@@ -391,6 +429,14 @@
   });
   $("#btn-fx").textContent = "FX:" + fx.toUpperCase();
 
+  /* 라이트/다크 테마 토글 */
+  $("#btn-theme").addEventListener("click", () => {
+    theme = theme === "dark" ? "light" : "dark";
+    localStorage.setItem("wani-theme", theme);
+    if (theme === "light") body.dataset.theme = "light";
+    else delete body.dataset.theme;
+  });
+
   /* 아이콘 + 라벨 구조 유지 (모바일에선 CSS가 라벨을 숨겨 아이콘만 표시) */
   function setAudioBtn(icon, label) {
     $("#btn-audio").innerHTML = icon + ' <span class="btn-label">' + label + "</span>";
@@ -446,12 +492,12 @@
     const t = (ko, en) => (lang === "ko" ? ko : en);
     let h = `
       <h1>김창완 KIM CHANGWAN — wani (@toowani)</h1>
-      <p class="pr-head">${t("GIST 전기전자컴퓨터공학과 3학년 · AI/ML · 힙합 베이스 전자음악 아티스트",
-        "Junior, EECS @ GIST · AI/ML · hip-hop based electronic music artist")}<br>
+      <p class="pr-head">${t("GIST 전기전자컴퓨터공학과 3학년 · ML/DL · 신호처리 · 힙합 베이스 전자음악/하이퍼팝 프로듀서",
+        "Junior, EECS @ GIST · ML/DL · signal processing · hip-hop bass electronic / hyperpop producer")}<br>
         changwan@gm.gist.ac.kr · kcw9151@gmail.com · github.com/toowani · youtube.com/@toowani</p>`;
-    h += `<h2>${t("개발 — 땅 위의 나", "DEV — me on land")}</h2>`;
+    h += `<h2>${t("DEV — 개발·연구", "DEV — engineering & research")}</h2>`;
     for (const sec of SITE_DATA.dev.sections) h += printSection(sec);
-    h += `<h2>${t("음악 — 물 속의 나", "ARTIST — me in water")}</h2>`;
+    h += `<h2>${t("ARTIST — 음악·콘텐츠", "ARTIST — music & content")}</h2>`;
     for (const sec of SITE_DATA.artist.sections) h += printSection(sec);
     root.innerHTML = h;
   }
@@ -500,23 +546,115 @@
   (function initCrocCursor() {
     const cur = $("#croc-cursor");
     if (!cur || !matchMedia("(hover: hover)").matches) return;
+    const bodyEl = cur.querySelector(".croc-body");
+    const skins = cur.querySelectorAll(".croc-skin");
+
+    let lastX = -9999, lastY = -9999;
     window.addEventListener("pointermove", (e) => {
+      lastX = e.clientX; lastY = e.clientY;
       cur.style.left = e.clientX + "px";
       cur.style.top = e.clientY + "px";
       cur.classList.add("on");
-    }, { passive: true });
-    window.addEventListener("pointerdown", () => {
-      cur.classList.remove("bite");
-      void cur.offsetWidth; // 애니메이션 재시작
-      cur.classList.add("bite");
-    });
-    let spinT = null;
-    window.addEventListener("scroll", () => {
-      cur.classList.add("spin");
-      clearTimeout(spinT);
-      spinT = setTimeout(() => cur.classList.remove("spin"), 220);
+      // 누른 채 이동(드래그) — 정지 타이머 리셋. 이동을 멈추고 가만히 있으면 다시 분노 축적
+      if (pressed && !bursting &&
+          Math.hypot(e.clientX - pressX, e.clientY - pressY) > 6) {
+        pressX = e.clientX; pressY = e.clientY; // 기준점 재설정
+        pressT0 = performance.now();            // 멈춘 시점부터 다시 카운트
+        burstT0 = 0;
+      }
     }, { passive: true });
     document.documentElement.addEventListener("pointerleave", () => cur.classList.remove("on"));
+
+    /* ---- 클릭: 입 다뭄 → 분노(빨개짐) → 폭발(물고기 도망) → 진정(복귀) ---- */
+    let pressed = false, pressT0 = 0;
+    let anger = 0, bursting = false, burstT0 = 0;
+    let pressX = 0, pressY = 0;
+    const baseFills = []; // 원래 색 (테마 변수 반영)
+    const hexToRgb = (c) => {
+      const m = c.match(/\d+/g);
+      return m ? m.slice(0, 3).map(Number) : [207, 205, 198];
+    };
+    const RAGE = [224, 82, 60]; // 분노 레드
+    function startPress(e) {
+      pressed = true;
+      pressT0 = performance.now();
+      if (e && e.clientX !== undefined) { lastX = e.clientX; lastY = e.clientY; }
+      pressX = lastX; pressY = lastY;
+      cur.classList.add("bite");
+      if (anger === 0) { // 화가 남아있으면 기존 base 유지 (빨개진 색을 base로 오인 방지)
+        baseFills.length = 0;
+        skins.forEach((el) => baseFills.push(hexToRgb(getComputedStyle(el).fill)));
+      }
+    }
+    function endPress() {
+      pressed = false;
+      burstT0 = 0;
+      cur.classList.remove("bite"); // 분노·폭발은 tick에서 서서히 해소
+    }
+    window.addEventListener("pointerdown", startPress);
+    window.addEventListener("pointerup", endPress);
+    window.addEventListener("pointercancel", endPress);
+    window.addEventListener("blur", endPress);
+
+    /* ---- 스크롤: 방향별 회전(아래=시계, 위=반시계) + 스프링 복귀 ---- */
+    let angle = 0, spinVel = 0;
+    window.addEventListener("wheel", (e) => {
+      spinVel += e.deltaY > 0 ? 14 : -14;
+      spinVel = Math.max(-46, Math.min(46, spinVel));
+    }, { passive: true });
+
+    (function tick() {
+      const now = performance.now();
+
+      /* 분노 게이지 — 마우스가 멈춘 채 눌려 있을 때만 축적 (이동 시 타이머 리셋) */
+      if (pressed) {
+        if (now - pressT0 > 400) anger = Math.min(1, anger + 0.011); // 서서히 빨개짐
+        // 최대 분노에서 0.6초 더 버티면 — 폭발
+        if (anger >= 1 && !bursting) {
+          if (!burstT0) burstT0 = now;
+          if (now - burstT0 > 600) {
+            bursting = true;
+            cur.classList.remove("angry");
+            cur.classList.add("burst");
+            window.WANI_FISH?.panic(lastX, lastY);
+          }
+        }
+      } else if (anger > 0) {
+        anger = Math.max(0, anger - 0.012); // 화가 사그라듦
+        if (bursting && anger < 0.5) {
+          bursting = false;
+          cur.classList.remove("burst");
+          window.WANI_FISH?.calm(); // 물고기 복귀
+        }
+        if (anger === 0) skins.forEach((el) => { el.style.fill = ""; });
+      }
+
+      /* 색 적용 */
+      if (anger > 0) {
+        skins.forEach((el, i) => {
+          const b = baseFills[i] || [207, 205, 198];
+          const rgb = b.map((v, k) => Math.round(v + (RAGE[k] - v) * anger));
+          el.style.fill = `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
+        });
+      }
+      cur.classList.toggle("angry", !bursting && pressed && anger > 0.85);
+      // 회전: 속도 감쇠 → 멈추면 스프링으로 부드럽게 원위치
+      if (spinVel !== 0) {
+        angle += spinVel;
+        spinVel *= 0.9;
+        if (Math.abs(spinVel) < 0.2) {
+          spinVel = 0;
+          angle = angle % 360; // 가장 가까운 한 바퀴 기준으로 복귀
+          if (angle > 180) angle -= 360;
+          if (angle < -180) angle += 360;
+        }
+      } else if (angle !== 0) {
+        angle += (0 - angle) * 0.1; // ease-out 스프링
+        if (Math.abs(angle) < 0.15) angle = 0;
+      }
+      bodyEl.style.transform = angle ? `rotate(${angle.toFixed(2)}deg)` : "";
+      requestAnimationFrame(tick);
+    })();
   })();
 
   /* ---------- 시계 ---------- */

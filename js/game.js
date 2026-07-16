@@ -23,8 +23,8 @@
   const SPECIAL_TILES = 10;        // L/W 특수 타일 개수
   const PELLET_PT = 10;
 
-  const LAND = { c1: "#b6ff00", c2: "#ffb300", bg: "#0a0f04" };
-  const WATER = { c1: "#00e5ff", c2: "#2979ff", bg: "#03101c" };
+  const LAND = { c1: "#aad59e", c2: "#c9e5c4", bg: "#101010" };
+  const WATER = { c1: "#b8cde6", c2: "#cee1f3", bg: "#0c0c0c" };
 
   /* ---------- DOM ---------- */
   const overlay = document.getElementById("game-overlay");
@@ -430,9 +430,9 @@
     ctx.fillRect(px, py, tile, tile);
     if (t === "L") {
       if (active) { // 잔디밭
-        ctx.fillStyle = "rgba(182,255,0,.20)";
+        ctx.fillStyle = "rgba(255,77,0,.20)";
         ctx.fillRect(px, py, tile, tile);
-        ctx.strokeStyle = "rgba(182,255,0,.75)";
+        ctx.strokeStyle = "rgba(255,77,0,.75)";
         ctx.lineWidth = 1.5;
         for (let i = 0; i < 3; i++) { // 풀잎
           const gx = px + tile * (0.25 + i * 0.25), gy = py + tile * 0.78;
@@ -444,9 +444,9 @@
       }
     } else if (t === "W") {
       if (active) { // 물결
-        ctx.fillStyle = "rgba(0,229,255,.18)";
+        ctx.fillStyle = "rgba(207,205,198,.18)";
         ctx.fillRect(px, py, tile, tile);
-        ctx.strokeStyle = "rgba(0,229,255,.8)";
+        ctx.strokeStyle = "rgba(207,205,198,.8)";
         ctx.lineWidth = 1.5;
         for (let i = 0; i < 2; i++) {
           const wy = py + tile * (0.35 + i * 0.35);
@@ -491,12 +491,12 @@
       ctx.beginPath();
       ctx.moveTo(cx + 2 * u, cy); ctx.lineTo(cx + 6 * u, cy - 4 * u); ctx.lineTo(cx + 6 * u, cy + 4 * u);
       ctx.fill();
-      ctx.fillStyle = "#050507";
+      ctx.fillStyle = "#0f0f0f";
       ctx.fillRect(cx - 3 * u, cy - 1 * u, 2 * u, 2 * u);
     } else if (pel === "berry") {
       ctx.fillStyle = "#d6ff4f";
       ctx.fillRect(cx - 4 * u, cy - 2 * u, 8 * u, 7 * u);
-      ctx.fillStyle = "#ffb300";
+      ctx.fillStyle = "#c9e5c4";
       ctx.fillRect(cx - 1 * u, cy - 6 * u, 2 * u, 4 * u);
     }
   }
@@ -505,7 +505,7 @@
   function drawHunter(h, idx, now) {
     const px = h.fx * tile, py = h.fy * tile;
     const bob = Math.sin(now * 7 + idx * 3) * 1.2 * u;
-    const vest = idx === 0 ? "#ff6a00" : "#ff2bd6";
+    const vest = idx === 0 ? "#aad59e" : "#b8cde6";
     ctx.save();
     ctx.translate(px, py + bob);
     // 다리
@@ -521,7 +521,7 @@
     // 얼굴
     ctx.fillStyle = "#e8c9a0";
     ctx.fillRect(10 * u, 9 * u, 12 * u, 7 * u);
-    ctx.fillStyle = "#050507"; // 눈 (플레이어 쪽을 노려봄)
+    ctx.fillStyle = "#0f0f0f"; // 눈 (플레이어 쪽을 노려봄)
     const look = Math.sign(player.fx - h.fx) * 1.2 * u;
     ctx.fillRect(12 * u + look, 11 * u, 2.5 * u, 2.5 * u);
     ctx.fillRect(18 * u + look, 11 * u, 2.5 * u, 2.5 * u);
@@ -563,7 +563,7 @@
     ctx.fillStyle = P.c2;
     ctx.fillRect(-tile / 2 + 6 * u, -9 * u, 5 * u, 5 * u);                // 눈두덩
     ctx.fillRect(-tile / 2 + 14 * u, -9 * u, 5 * u, 5 * u);
-    ctx.fillStyle = "#050507";
+    ctx.fillStyle = "#0f0f0f";
     ctx.fillRect(-tile / 2 + 7 * u, -8 * u, 2 * u, 2 * u);                // 눈
     ctx.fillRect(-tile / 2 + 15 * u, -8 * u, 2 * u, 2 * u);
     ctx.fillStyle = "#fff";
@@ -582,14 +582,14 @@
     drawPlayer(now);
 
     if (flashT > 0) {
-      ctx.fillStyle = (phase === "land" ? "rgba(182,255,0," : "rgba(0,229,255,") + (flashT * 0.3) + ")";
+      ctx.fillStyle = (phase === "land" ? "rgba(255,77,0," : "rgba(207,205,198,") + (flashT * 0.3) + ")";
       ctx.fillRect(0, 0, cvs.width, cvs.height);
     }
     if (running && readyT > 0) { // 시작/부활 카운트다운
       ctx.fillStyle = "rgba(0,0,0,.45)";
       ctx.fillRect(0, 0, cvs.width, cvs.height);
       ctx.fillStyle = "#fff";
-      ctx.font = `bold ${28 * u}px 'IBM Plex Mono', monospace`;
+      ctx.font = `bold ${28 * u}px 'Pretendard Variable', Pretendard, sans-serif`;
       ctx.textAlign = "center";
       ctx.fillText(readyT > 0.7 ? "READY?" : "GO!", cvs.width / 2, cvs.height / 2);
     }

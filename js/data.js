@@ -11,45 +11,47 @@ const SITE_DATA = {
   ui: {
     ko: {
       switchMode: "모드 전환",
-      landingEyebrow: "// HALF ON LAND, HALF IN WATER",
-      devCardDesc: "땅 위의 나 — GIST 전기전자컴퓨터공학 · AI/ML",
-      artistCardDesc: "물 속의 나 — 힙합 베이스 전자음악",
+      landingEyebrow: "// KIM CHANGWAN — GIST EECS × ELECTRONIC MUSIC",
+      devCardDesc: "GIST 전기전자컴퓨터공학 — ML/DL · 신호처리",
+      artistCardDesc: "힙합 베이스 전자음악 · 하이퍼팝 프로듀서",
       enter: "[ ENTER ]",
-      landTag: "▲ ON LAND",
-      waterTag: "▼ IN WATER",
+      landTag: "▲ DEV",
+      waterTag: "▼ MUSIC",
       footerNote: "이 사이트는 GitHub Pages에서 구동됩니다",
-      audioHint: "🔊 상단의 <b>▶ AUDIO</b>를 누르면 wani의 음악이 재생되고, 배경 비주얼이 소리에 맞춰 반응합니다.",
+      audioHint: "상단 <b>▶ AUDIO</b> — 자작 트랙 재생. 배경 비주얼이 오디오 신호에 반응.",
       landingId: "김창완 KIM CHANGWAN · GIST 전기전자컴퓨터공학 · @toowani",
-      crossToArtist: "물 속의 나도 있다 — 음악하는 wani 보러 가기",
-      crossToDev: "땅 위의 나도 있다 — 개발하는 wani 보러 가기",
-      crossDive: "▼ DIVE IN",
-      crossSurface: "▲ SURFACE",
+      waniNote: "<b>wani</b> [와니] ① 일본어로 '악어(わに, ワニ)'. ② 김창완의 별명 — 이름의 '완'에서. ③ 땅과 물을 오가는 악어처럼, 개발과 음악을 오간다.",
+      crossToArtist: "음악 작업 보기 — ARTIST_WANI",
+      crossToDev: "개발·연구 보기 — DEV_WANI",
+      crossDive: "▼ ARTIST MODE",
+      crossSurface: "▲ DEV MODE",
       mapHint: "[ <b>WANI</b>를 누르면 → LIFE MAP ]",
-      jyLand: "▲ ON LAND — 개발",
-      jyWater: "▼ IN WATER — 음악 · 영상",
-      jyHint: "스크롤 ↓ 악어가 시간을 거슬러 걷습니다 →",
+      jyLand: "▲ DEV",
+      jyWater: "▼ MUSIC · VISUAL",
+      jyHint: "스크롤 ↓ 2022 → NOW",
       jyStart: "START · 2022",
       jyNow: "NOW",
     },
     en: {
       switchMode: "SWITCH MODE",
-      landingEyebrow: "// HALF ON LAND, HALF IN WATER",
-      devCardDesc: "Me on land — GIST EECS · AI/ML",
-      artistCardDesc: "Me in water — hip-hop based electronic music",
+      landingEyebrow: "// KIM CHANGWAN — GIST EECS × ELECTRONIC MUSIC",
+      devCardDesc: "GIST EECS — ML/DL · signal processing",
+      artistCardDesc: "hip-hop bass electronic · hyperpop producer",
       enter: "[ ENTER ]",
-      landTag: "▲ ON LAND",
-      waterTag: "▼ IN WATER",
+      landTag: "▲ DEV",
+      waterTag: "▼ MUSIC",
       footerNote: "This site runs on GitHub Pages",
-      audioHint: "🔊 Hit <b>▶ AUDIO</b> up top to play wani's music — the background visuals react to the sound.",
+      audioHint: "Top <b>▶ AUDIO</b> — plays an original track. Background visuals react to the audio signal.",
       landingId: "KIM CHANGWAN · GIST EECS · @toowani",
-      crossToArtist: "There's another me in the water — meet wani the artist",
-      crossToDev: "There's another me on land — meet wani the developer",
-      crossDive: "▼ DIVE IN",
-      crossSurface: "▲ SURFACE",
+      waniNote: "<b>wani</b> [wǎ:ni] ① Japanese for 'crocodile' (わに, ワニ). ② Changwan's nickname — from the 'wan' in his name. ③ Like a crocodile crossing land and water, he crosses dev and music.",
+      crossToArtist: "Music work — ARTIST_WANI",
+      crossToDev: "Dev & research — DEV_WANI",
+      crossDive: "▼ ARTIST MODE",
+      crossSurface: "▲ DEV MODE",
       mapHint: "[ TAP <b>WANI</b> → LIFE MAP ]",
-      jyLand: "▲ ON LAND — DEV",
-      jyWater: "▼ IN WATER — MUSIC · VISUAL",
-      jyHint: "SCROLL ↓ the croc walks back through time →",
+      jyLand: "▲ DEV",
+      jyWater: "▼ MUSIC · VISUAL",
+      jyHint: "SCROLL ↓ 2022 → NOW",
       jyStart: "START · 2022",
       jyNow: "NOW",
     },
@@ -57,10 +59,10 @@ const SITE_DATA = {
 
   /* ---------- 티커 문구 ---------- */
   ticker: {
-    dev:    "DEV_WANI :: GIST EECS :: AI / ML :: KAIST → UC BERKELEY :: @toowani :: ",
-    artist: "ARTIST_WANI :: HIPHOP × ELECTRONIC :: VORTEX CRACK LOADING :: @toowani :: ",
-    journey: "LIFE.MAP :: NOW → 2022 :: ONE CROC, TWO WORLDS :: LAND ▲ × ▼ WATER :: @toowani :: ",
-    none:   "WANI.SYS :: HALF ON LAND, HALF IN WATER :: SELECT MODE :: @toowani :: ",
+    dev:    "DEV_WANI :: GIST EECS :: ML/DL · SIGNAL PROCESSING :: KAIST → UC BERKELEY :: @toowani :: ",
+    artist: "ARTIST_WANI :: HIPHOP BASS · HYPERPOP :: VORTEX CRACK — IN PROGRESS :: @toowani :: ",
+    journey: "LIFE.MAP :: 2022 → NOW :: DEV × MUSIC :: @toowani :: ",
+    none:   "WANI.SYS :: GIST EECS × ELECTRONIC MUSIC :: SELECT MODE :: @toowani :: ",
   },
 
   /* ============================================================
@@ -70,19 +72,19 @@ const SITE_DATA = {
     intro: {
       ko: [
         "$ whoami",
-        "김창완 aka wani — GIST 전기전자컴퓨터공학과 3학년",
+        "김창완 — GIST 전기전자컴퓨터공학과 3학년",
         "$ cat interests.txt",
-        "AI / Machine Learning — 데이터로 문제를 푸는 일",
+        "ML/DL · 신호처리 · 오디오 AI",
         "$ echo $HANDLE",
-        "@toowani  <span class='dim'># too + wani, \"완전 나답게\"</span>",
+        "@toowani  <span class='dim'># 모든 플랫폼 동일 핸들</span>",
       ],
       en: [
         "$ whoami",
-        "Changwan Kim aka wani — Junior, EECS @ GIST",
+        "Changwan Kim — Junior, EECS @ GIST",
         "$ cat interests.txt",
-        "AI / Machine Learning — solving problems with data",
+        "ML/DL · signal processing · audio AI",
         "$ echo $HANDLE",
-        "@toowani  <span class='dim'># too + wani, \"completely myself\"</span>",
+        "@toowani  <span class='dim'># same handle everywhere</span>",
       ],
     },
 
@@ -91,7 +93,7 @@ const SITE_DATA = {
         id: "exchange",
         title: { ko: "학점교류", en: "EXCHANGE" },
         ghost: "EXCHANGE",
-        type: "cards",
+        type: "list",
         items: [
           {
             year: { ko: "2026.06 – 08 · 진행 중", en: "2026.06 – 08 · in progress" },
@@ -229,7 +231,7 @@ const SITE_DATA = {
         id: "ml",
         title: { ko: "AI / ML", en: "AI / ML" },
         ghost: "MACHINE",
-        type: "cards",
+        type: "list",
         items: [
           {
             year: "2023.09 – 11",
@@ -258,7 +260,7 @@ const SITE_DATA = {
         id: "startup",
         title: { ko: "창업", en: "STARTUP" },
         ghost: "BUILD",
-        type: "cards",
+        type: "list",
         items: [
           {
             year: "2023.05 – 11",
@@ -286,7 +288,7 @@ const SITE_DATA = {
         id: "projects",
         title: { ko: "프로젝트", en: "PROJECTS" },
         ghost: "MAKE",
-        type: "cards",
+        type: "list",
         items: [
           {
             year: { ko: "2026 봄학기 · A+", en: "2026 Spring · A+" },
@@ -340,8 +342,8 @@ const SITE_DATA = {
         ghost: "CONNECT",
         type: "links",
         note: {
-          ko: "모든 핸들은 @toowani — too + wani, \"완전 나답게\"<br>contact: <b>changwan@gm.gist.ac.kr</b> · kcw9151@gmail.com",
-          en: "One handle everywhere: @toowani — too + wani, \"completely myself\"<br>contact: <b>changwan@gm.gist.ac.kr</b> · kcw9151@gmail.com",
+          ko: "모든 플랫폼 동일 핸들: @toowani<br>contact: <b>changwan@gm.gist.ac.kr</b> · kcw9151@gmail.com",
+          en: "Same handle everywhere: @toowani<br>contact: <b>changwan@gm.gist.ac.kr</b> · kcw9151@gmail.com",
         },
         items: [
           { label: "GITHUB",   url: "https://github.com/toowani" },
@@ -360,17 +362,17 @@ const SITE_DATA = {
     intro: {
       ko: [
         "$ play wani.wav",
-        "힙합 베이스의 전자음악 아티스트, wani.",
-        "wani(ワニ)는 악어 — 땅과 물, 두 세계를 오가며 산다.",
+        "wani — 힙합 베이스 전자음악 · 하이퍼팝 프로듀서.",
+        "FL Studio 기반. 작곡·사운드 디자인·믹스/마스터 전 과정 직접 작업.",
         "$ echo $HANDLE",
-        "@toowani  <span class='dim'># too + wani, \"완전 나답게\"</span>",
+        "@toowani  <span class='dim'># 모든 플랫폼 동일 핸들</span>",
       ],
       en: [
         "$ play wani.wav",
-        "wani — hip-hop based electronic music artist.",
-        "wani(ワニ) means crocodile — living across land and water.",
+        "wani — hip-hop bass electronic · hyperpop producer.",
+        "FL Studio based. Composition, sound design, mix/master — all in-house.",
         "$ echo $HANDLE",
-        "@toowani  <span class='dim'># too + wani, \"completely myself\"</span>",
+        "@toowani  <span class='dim'># same handle everywhere</span>",
       ],
     },
 
@@ -379,7 +381,7 @@ const SITE_DATA = {
         id: "releases",
         title: { ko: "발매 & 프로젝트", en: "RELEASES" },
         ghost: "SOUND",
-        type: "cards",
+        type: "tracks",
         items: [
           {
             year: { ko: "2026 – · 진행 중", en: "2026 – · in progress" },
@@ -408,7 +410,7 @@ const SITE_DATA = {
         id: "crew",
         title: { ko: "크루", en: "CREW" },
         ghost: "CREW",
-        type: "cards",
+        type: "tracks",
         items: [
           {
             year: "2022 –",
@@ -426,15 +428,15 @@ const SITE_DATA = {
         id: "content",
         title: { ko: "영상 & 콘텐츠", en: "VISUAL & CONTENT" },
         ghost: "VISUAL",
-        type: "cards",
+        type: "tracks",
         items: [
           {
             year: "2026",
             title: { ko: "W.A.N.I. Project", en: "W.A.N.I. Project" },
             sub: { ko: "Wider Audio Network Insights", en: "Wider Audio Network Insights" },
             desc: {
-              ko: "음악을 만들고(FL Studio·Serum 신스 디자인·믹스/마스터), 음악을 보이게 하고(TouchDesigner 오디오 반응 비주얼 + 손동작으로 조작하는 웹 비주얼라이저), 음악을 분석한다(레퍼런스 곡을 넣으면 비슷한 타입비트를 찾아주는 AI 디깅 프로그램). 땅×물을 가로지르는 악어다운 프로젝트 — '사운드 디자인과 프로그래밍' 수업 A+.",
-              en: "Make music (FL Studio, Serum sound design, mix/master), make it visible (TouchDesigner audio-reactive visuals + a hand-gesture web visualizer), and analyze it (an AI digging program that finds type beats similar to a reference track). A truly amphibian project across land and water — A+ in 'Sound Design & Programming'.",
+              ko: "제작–시각화–분석 3부 구성. FL Studio·Serum 사운드 디자인과 믹스/마스터, TouchDesigner 오디오 반응 비주얼 및 손 제스처 웹 비주얼라이저, 레퍼런스 곡 기반 타입비트 검색 프로그램. '사운드 디자인과 프로그래밍' 수업 A+.",
+              en: "Three parts: production, visualization, analysis. FL Studio & Serum sound design with mix/master, TouchDesigner audio-reactive visuals plus a hand-gesture web visualizer, and a reference-based type-beat search program. A+ in 'Sound Design & Programming'.",
             },
             tags: ["FL Studio", "TouchDesigner", "AI Digging"],
           },
@@ -467,8 +469,8 @@ const SITE_DATA = {
         ghost: "SIGNAL",
         type: "links",
         note: {
-          ko: "모든 핸들은 @toowani — too + wani, \"완전 나답게\"<br>contact: <b>changwan@gm.gist.ac.kr</b> · kcw9151@gmail.com",
-          en: "One handle everywhere: @toowani — too + wani, \"completely myself\"<br>contact: <b>changwan@gm.gist.ac.kr</b> · kcw9151@gmail.com",
+          ko: "모든 플랫폼 동일 핸들: @toowani<br>contact: <b>changwan@gm.gist.ac.kr</b> · kcw9151@gmail.com",
+          en: "Same handle everywhere: @toowani<br>contact: <b>changwan@gm.gist.ac.kr</b> · kcw9151@gmail.com",
         },
         items: [
           { label: "YOUTUBE",    url: "https://www.youtube.com/@toowani" },

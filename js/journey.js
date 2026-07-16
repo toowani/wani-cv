@@ -41,11 +41,12 @@
         tags: it.tags || [],
       });
     };
+    const HAS_ITEMS = ["cards", "list", "tracks", "timeline"];
     for (const sec of SITE_DATA.dev.sections)
-      if (sec.type === "cards" || sec.type === "timeline")
+      if (HAS_ITEMS.includes(sec.type))
         sec.items.forEach((it) => push("land", it));
     for (const sec of SITE_DATA.artist.sections)
-      if (sec.type === "cards" || sec.type === "timeline")
+      if (HAS_ITEMS.includes(sec.type))
         sec.items.forEach((it) => push("water", it));
     evs.sort((a, b) => b.sort - a.sort); // 최신 먼저 — NOW에서 출발해 과거로 거슬러 걷기
     return evs;
@@ -83,8 +84,8 @@
     svg.innerHTML = `
       <defs>
         <linearGradient id="jy-grad" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stop-color="#b6ff00"/>
-          <stop offset="1" stop-color="#00e5ff"/>
+          <stop offset="0" stop-color="#8f8d86"/>
+          <stop offset="1" stop-color="#8f8d86"/>
         </linearGradient>
       </defs>
       <path d="${d}" fill="none" stroke="url(#jy-grad)" stroke-width="2"
@@ -137,34 +138,32 @@
     update();
   }
 
-  /* ---------- 스크롤 → 악어 워크 + 카메라 ---------- */
-  function update() {
-    if (section.hidden || !trackW) return;
+  /* ---------- 스크롤 → 악어 워크 + 카메라 (관성 물리: 미끄러지듯 가감속) ---------- */
+  let curX = 0, velX = 0;
+
+  function scrollTarget() {
     const scrollable = section.offsetHeight - H;
     const p = Math.min(1, Math.max(0, (window.scrollY - section.offsetTop) / (scrollable || 1)));
-
     // 양끝 깃발과 겹치지 않게 살짝 안쪽에서 출발·도착
     const x0 = PAD0 * 0.5 + 130, x1 = trackW - PAD1 * 0.55 - 130;
-    const xC = x0 + p * (x1 - x0);
-    const y = pathY(xC);
-    const slope = (pathY(xC + 8) - pathY(xC - 8)) / 16;
+    return { x: x0 + p * (x1 - x0), p, x0, x1 };
+  }
 
-    croc.style.left = xC.toFixed(1) + "px";
+  function render(p) {
+    const y = pathY(curX);
+    const slope = (pathY(curX + 8) - pathY(curX - 8)) / 16;
+
+    croc.style.left = curX.toFixed(1) + "px";
     croc.style.top = y.toFixed(1) + "px";
     croc.style.setProperty("--tilt", (Math.atan(slope) * 57.3 * 0.7).toFixed(1) + "deg");
 
-    const cam = Math.min(Math.max(xC - W * 0.42, 0), Math.max(trackW - W, 0));
+    const cam = Math.min(Math.max(curX - W * 0.42, 0), Math.max(trackW - W, 0));
     track.style.transform = `translate3d(${-cam.toFixed(1)}px,0,0)`;
-
-    // 걷기 모션 (스크롤 중에만)
-    croc.classList.add("walk");
-    clearTimeout(walkT);
-    walkT = setTimeout(() => croc.classList.remove("walk"), 200);
 
     // 악어와 가까운 카드 하이라이트 + 현재 위치의 연도
     let bestYr = "", bestD = Infinity;
     for (const n of nodes) {
-      const d = Math.abs(n.x - xC);
+      const d = Math.abs(n.x - curX);
       n.el.classList.toggle("near", d < 190);
       if (d < bestD) { bestD = d; bestYr = String(n.yr); }
     }
@@ -179,6 +178,43 @@
     hint.classList.toggle("off", p > 0.03);
   }
 
+  /* build 직후·리사이즈 시 — 글라이드 없이 즉시 위치 맞춤 */
+  let prevTX = 0, lastDir = 1;
+  function update() {
+    if (section.hidden || !trackW) return;
+    const t = scrollTarget();
+    curX = t.x; velX = 0; prevTX = t.x;
+    render(t.p);
+  }
+
+  /* 장난감 자동차 물리: 스크롤 변화량 = 미는 힘(임펄스), 이후 마찰로만 감속하며 관성 주행.
+     k = (1-마찰)로 맞춰서 정속 스크롤 중엔 스크롤 속도 그대로 따라가고(고무줄 랙 없음),
+     멈추면 남은 속도로 스르륵 미끄러지다 정지 */
+  const FRICTION = 0.93;
+  const PUSH = 1 - FRICTION; // 정속 스크롤 시 속도 1:1 수렴 조건
+  (function tick() {
+    if (!section.hidden && trackW) {
+      const t = scrollTarget();
+      const err = t.x - curX;
+      const dT = t.x - prevTX;
+      if (dT !== 0) lastDir = Math.sign(dT); // 마지막 스크롤 진행 방향
+      velX += dT * PUSH; // 스크롤이 민 만큼만 가속 (임펄스)
+      // 견인은 목표가 '진행 방향 앞'에 있을 때만 — 지나쳤으면 그 자리에 정지 (되돌아오는 역주행 금지)
+      if (err * lastDir > 0) velX += err * 0.0012;
+      prevTX = t.x;
+      velX *= FRICTION;              // 바닥 마찰 — 미끄러지며 감속
+      velX = Math.max(-70, Math.min(70, velX));
+
+      let moved = false;
+      if (Math.abs(velX) > 0.02 || Math.abs(err) > 0.5) { curX += velX; moved = true; }
+
+      curX = Math.max(t.x0, Math.min(t.x1, curX)); // 경계 밖으로 미끄러지지 않게
+      if (moved) render(t.p);
+      croc.classList.toggle("walk", Math.abs(velX) > 0.4); // 걷는 동안 다리 유지
+    }
+    requestAnimationFrame(tick);
+  })();
+
   /* ---------- 카드 탭 → 설명 펼치기 / 종점 CTA ---------- */
   nodesEl.addEventListener("click", (e) => {
     const go = e.target.closest("[data-jy-go]");
@@ -188,7 +224,7 @@
   });
 
   /* ---------- listeners ---------- */
-  window.addEventListener("scroll", update, { passive: true });
+  /* 스크롤은 관성 루프(tick)가 매 프레임 목표를 읽으므로 별도 리스너 불필요 */
   let rsT = null;
   window.addEventListener("resize", () => {
     if (section.hidden) return;
