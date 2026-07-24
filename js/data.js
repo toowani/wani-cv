@@ -12,7 +12,7 @@ const SITE_DATA = {
     ko: {
       switchMode: "모드 전환",
       landingEyebrow: "// KIM CHANGWAN — GIST EECS × ELECTRONIC MUSIC",
-      devCardDesc: "GIST 전기전자컴퓨터공학 — ML/DL · 신호처리",
+      devCardDesc: "GIST 전기전자컴퓨터공학 — ML/DL · AI 연구",
       artistCardDesc: "힙합 베이스 전자음악 · 하이퍼팝 프로듀서",
       enter: "[ ENTER ]",
       landTag: "▲ DEV",
@@ -35,7 +35,7 @@ const SITE_DATA = {
     en: {
       switchMode: "SWITCH MODE",
       landingEyebrow: "// KIM CHANGWAN — GIST EECS × ELECTRONIC MUSIC",
-      devCardDesc: "GIST EECS — ML/DL · signal processing",
+      devCardDesc: "GIST EECS — ML/DL · AI research",
       artistCardDesc: "hip-hop bass electronic · hyperpop producer",
       enter: "[ ENTER ]",
       landTag: "▲ DEV",
@@ -59,7 +59,7 @@ const SITE_DATA = {
 
   /* ---------- 티커 문구 ---------- */
   ticker: {
-    dev:    "R&D_WANI :: GIST EECS :: ML/DL · SIGNAL PROCESSING :: KAIST → UC BERKELEY :: @toowani :: ",
+    dev:    "R&D_WANI :: GIST EECS :: ML/DL · AI RESEARCH :: KAIST → UC BERKELEY :: @toowani :: ",
     artist: "ART_WANI :: HIPHOP BASS · HYPERPOP :: VORTEX CRACK — IN PROGRESS :: @toowani :: ",
     journey: "LIFE.MAP :: 2022 → NOW :: DEV × MUSIC :: @toowani :: ",
     none:   "WANI.SYS :: GIST EECS × ELECTRONIC MUSIC :: SELECT MODE :: @toowani :: ",
@@ -74,7 +74,7 @@ const SITE_DATA = {
         "$ whoami",
         "김창완 — GIST 전기전자컴퓨터공학과 3학년",
         "$ cat interests.txt",
-        "ML/DL · 신호처리 · 오디오 AI",
+        "ML/DL · AI 연구 · 오디오 AI",
         "$ echo $HANDLE",
         "@toowani  <span class='dim'># 모든 플랫폼 동일 핸들</span>",
       ],
@@ -82,7 +82,7 @@ const SITE_DATA = {
         "$ whoami",
         "Changwan Kim — Junior, EECS @ GIST",
         "$ cat interests.txt",
-        "ML/DL · signal processing · audio AI",
+        "ML/DL · AI research · audio AI",
         "$ echo $HANDLE",
         "@toowani  <span class='dim'># same handle everywhere</span>",
       ],
@@ -118,112 +118,62 @@ const SITE_DATA = {
         ],
       },
       {
-        /* 성적표 — GIST 공식 성적증명서 기반. 과목: [코드, 국문명, 영문명, 학점, 성적] */
-        id: "transcript",
-        title: { ko: "성적표", en: "TRANSCRIPT" },
-        ghost: "RECORD",
-        type: "transcript",
-        summary: {
-          ko: "총 90학점 이수 · 전체 평점 3.92 / 4.5 · 직전학기 4.15 (+ UC Berkeley 6학점 진행 중)",
-          en: "90 credits earned · Cumulative GPA 3.92 / 4.5 · Last semester 4.15 (+6 credits in progress at UC Berkeley)",
-        },
-        semesters: [
+        id: "coursework",
+        title: { ko: "핵심 과목", en: "COURSEWORK" },
+        ghost: "MAP",
+        type: "timeline",
+        items: [
           {
-            name: { ko: "2022 · 1학기", en: "2022 · Spring" },
-            stat: { ko: "18학점 · 평점 3.84", en: "18 cr · GPA 3.84" },
-            courses: [
-              ["GS0110", "헬스", "Fitness", 0, "S"],
-              ["GS1001", "미적분학과 응용", "Calculus and Applications", 3, "A0"],
-              ["GS1101", "일반물리학 및 연습 I", "General Physics I", 3, "B+"],
-              ["GS1111", "일반물리학 실험 I", "General Physics Lab I", 1, "A+"],
-              ["GS1201", "일반화학 및 연습 I", "General Chemistry I", 3, "B0"],
-              ["GS1512", "글쓰기의 기초: 학술적 글쓰기", "Academic Writing Basics", 3, "A0"],
-              ["GS1901", "GIST 새내기", "GIST Freshman Seminar", 1, "S"],
-              ["GS2704", "기업과 사회 Ⅰ", "Business and Society I", 3, "A+"],
-              ["UC0901", "과학기술과 경제", "Science, Technology and Economy", 1, "S"],
-            ],
+            year: "1-1",
+            title: { ko: "2022 · 봄학기", en: "2022 · Spring" },
+            desc: { ko: "미적분학과 응용", en: "Calculus and Applications" },
           },
           {
-            name: { ko: "2022 · 2학기", en: "2022 · Fall" },
-            stat: { ko: "19학점 · 평점 3.94", en: "19 cr · GPA 3.94" },
-            courses: [
-              ["GS0213", "컴퓨터 음악 만들기", "Making Computer Music", 0, "S"],
-              ["GS1211", "일반화학실험 Ⅰ", "General Chemistry Lab I", 1, "B0"],
-              ["GS1401", "컴퓨터 프로그래밍", "Computer Programming", 3, "A0"],
-              ["GS1603", "영어 Ⅰ: 발표와 토론", "English I: Presentation & Debate", 2, "A+"],
-              ["GS2001", "다변수해석학과 응용", "Multivariable Calculus and Applications", 3, "B+"],
-              ["GS2822", "AI와 나", "AI and Me", 2, "B+"],
-              ["GS2823", "수학의 위대한 순간들 - AI", "Great Moments in Mathematics — AI", 3, "A+"],
-              ["GS2833", "비판적 디자인", "Critical Design", 3, "A0"],
-              ["UC0202", "창의함양", "Creativity Development", 1, "S"],
-              ["UC0902", "GIST 전공탐색", "Major Exploration", 1, "S"],
-            ],
-          },
-          {
-            name: { ko: "2023 · 1학기", en: "2023 · Spring" },
-            stat: { ko: "17학점 · 평점 3.61", en: "17 cr · GPA 3.61" },
-            courses: [
-              ["EC2202", "자료 구조", "Data Structures", 3, "A0"],
-              ["EC2203", "디지털 설계", "Digital Design", 3, "A0"],
-              ["GS0112", "수영", "Swimming", 0, "S"],
-              ["GS2004", "선형대수학과 응용", "Linear Algebra and Applications", 3, "B+"],
-              ["GS2652", "영어 II: 이공계 글쓰기 입문", "English II: Intro to Scientific Writing", 2, "B0"],
-              ["GS2809", "아름다운 지구", "Beautiful Earth", 3, "B0"],
-              ["GS2824", "문명과 수학", "Civilization and Mathematics", 3, "A0"],
-              ["UC9331", "GIST대학 콜로퀴움", "GIST College Colloquium", 0, "S"],
-            ],
-          },
-          {
-            name: { ko: "2023 · 여름학기", en: "2023 · Summer" },
-            stat: { ko: "1학점 · KAIST 학점교류", en: "1 cr · KAIST Exchange" },
-            courses: [
-              ["GS0700", "세미나 <몰입캠프: 프로그래밍과 스타트업> (KAIST)", "Seminar: Immersion Camp — Programming & Startup (KAIST)", 1, "S"],
-            ],
-          },
-          {
-            name: { ko: "2023 · 2학기", en: "2023 · Fall" },
-            stat: { ko: "16학점 · 평점 4.16", en: "16 cr · GPA 4.16" },
-            courses: [
-              ["AI2002", "디지털 유니버스 콜로퀴움", "Digital Universe Colloquium", 1, "S"],
-              ["EC2206", "알고리즘 개론", "Introduction to Algorithms", 3, "A+"],
-              ["GS0108", "힙합댄스", "Hip-hop Dance", 0, "S"],
-              ["GS1496", "(MOOC) 기계학습을 위한 수학: 선형대수학", "(MOOC) Math for ML: Linear Algebra", 1, "S"],
-              ["GS2420", "(MOOC) 알고리즘 기반 논리적 사고 - 기초", "(MOOC) Algorithmic Logical Thinking — Basic", 1, "S"],
-              ["GS2421", "(MOOC) 알고리즘 기반 논리적 사고 - 심화", "(MOOC) Algorithmic Logical Thinking — Advanced", 1, "S"],
-              ["GS2795", "문명으로 보는 21세기", "The 21st Century through Civilization", 3, "A0"],
-              ["GS2797", "꿈의 사회학", "Sociology of Dreams", 3, "A0"],
-              ["GS3401", "(MOOC) 프론트엔드 웹 개발", "(MOOC) Frontend Web Development", 2, "S"],
-              ["UC0201", "사회봉사", "Community Service", 1, "S"],
-            ],
-          },
-          {
-            gap: true,
-            name: {
-              ko: "2024.03 – 2025.12 — 대한민국 공군 복무 (만기전역)",
-              en: "2024.03 – 2025.12 — ROK Air Force service (honorable discharge)",
+            year: "1-2",
+            title: { ko: "2022 · 가을학기", en: "2022 · Fall" },
+            desc: {
+              ko: "컴퓨터 음악 만들기 · 컴퓨터 프로그래밍 · 다변수해석학과 응용 · AI와 나 · 수학의 위대한 순간들 - AI",
+              en: "Making Computer Music · Computer Programming · Multivariable Calculus and Applications · AI and Me · Great Moments in Mathematics — AI",
             },
           },
           {
-            name: { ko: "2026 · 1학기", en: "2026 · Spring" },
-            stat: { ko: "19학점 · 평점 4.15", en: "19 cr · GPA 4.15" },
-            courses: [
-              ["AI5302", "딥러닝", "Deep Learning", 3, "A0"],
-              ["CT5104", "사운드 디자인과 프로그래밍", "Sound Design and Programming", 3, "A+"],
-              ["EC2107", "기초공학수학 Ⅰ", "Engineering Mathematics I", 3, "A+"],
-              ["EC3102", "컴퓨터 시스템 이론 및 실험", "Computer Systems Theory and Lab", 4, "A0"],
-              ["EC3216", "오토마타 이론", "Automata Theory", 3, "B+"],
-              ["HS2544", "문화콘텐츠의 이해", "Understanding Cultural Contents", 3, "A+"],
-              ["UC9331", "GIST대학 콜로퀴움", "GIST College Colloquium", 0, "S"],
-            ],
+            year: "2-1",
+            title: { ko: "2023 · 봄학기", en: "2023 · Spring" },
+            desc: {
+              ko: "자료 구조 · 디지털 설계 · 선형대수학과 응용 · 문명과 수학",
+              en: "Data Structures · Digital Design · Linear Algebra and Applications · Civilization and Mathematics",
+            },
           },
           {
-            open: true,
-            name: { ko: "2026 · 여름학기 (UC Berkeley 학점교류 · 진행 중)", en: "2026 · Summer (UC Berkeley Exchange · in progress)" },
-            stat: { ko: "6학점 · Pass 처리", en: "6 cr · Pass/No Pass" },
-            courses: [
-              ["CS70", "이산수학 (Discrete Mathematics and Probability Theory)", "CS70 Discrete Mathematics and Probability Theory", 3, "P"],
-              ["CS188", "인공지능 (Introduction to Artificial Intelligence)", "CS188 Introduction to Artificial Intelligence", 3, "P"],
-            ],
+            year: "2-여름",
+            title: { ko: "2023 · 여름학기 (KAIST 학점교류)", en: "2023 · Summer (KAIST Exchange)" },
+            desc: { ko: "KAIST 몰입캠프 — 프로그래밍과 스타트업", en: "KAIST Immersion Camp — Programming & Startup" },
+          },
+          {
+            year: "2-2",
+            title: { ko: "2023 · 가을학기", en: "2023 · Fall" },
+            desc: {
+              ko: "디지털 유니버스 콜로퀴움 · 알고리즘 개론 · (MOOC) 기계학습을 위한 수학: 선형대수학 · (MOOC) 알고리즘 기반 논리적 사고(기초·심화) · (MOOC) 프론트엔드 웹 개발",
+              en: "Digital Universe Colloquium · Introduction to Algorithms · (MOOC) Math for ML: Linear Algebra · (MOOC) Algorithmic Logical Thinking (Basic & Advanced) · (MOOC) Frontend Web Development",
+            },
+          },
+          {
+            year: "GAP",
+            title: { ko: "2024.03 – 2025.12", en: "2024.03 – 2025.12" },
+            desc: { ko: "대한민국 공군 복무 (만기전역) — 휴학", en: "ROK Air Force service (honorable discharge) — academic leave" },
+          },
+          {
+            year: "3-1",
+            title: { ko: "2026 · 봄학기", en: "2026 · Spring" },
+            desc: {
+              ko: "딥러닝 · 사운드 디자인과 프로그래밍 · 기초공학수학 Ⅰ · 컴퓨터 시스템 이론 및 실험 · 오토마타 이론",
+              en: "Deep Learning · Sound Design and Programming · Engineering Mathematics I · Computer Systems Theory and Lab · Automata Theory",
+            },
+          },
+          {
+            year: "3-여름",
+            title: { ko: "2026 · 여름학기 (UC Berkeley 학점교류 · 진행 중)", en: "2026 · Summer (UC Berkeley Exchange · in progress)" },
+            desc: { ko: "CS70 이산수학 · CS188 인공지능", en: "CS70 Discrete Mathematics · CS188 Artificial Intelligence" },
           },
         ],
       },
@@ -291,7 +241,7 @@ const SITE_DATA = {
         type: "list",
         items: [
           {
-            year: { ko: "2026 봄학기 · A+", en: "2026 Spring · A+" },
+            year: { ko: "2026 봄학기", en: "2026 Spring" },
             title: { ko: "W.A.N.I. Project", en: "W.A.N.I. Project" },
             sub: { ko: "사운드 디자인과 프로그래밍 (CT5104)", en: "Sound Design & Programming (CT5104)" },
             desc: {
@@ -309,6 +259,36 @@ const SITE_DATA = {
               en: "3D fabrication for overlooked users — a hands-free shoehorn for people with limited mobility, and a tactile extratropical-cyclone model for visually impaired students.",
             },
             tags: ["3D Printing", "Accessibility"],
+          },
+        ],
+      },
+      {
+        id: "activities",
+        title: { ko: "활동", en: "ACTIVITIES" },
+        ghost: "ACTIVITY",
+        type: "list",
+        items: [
+          {
+            year: "2022.03 – 2023.02",
+            title: { ko: "GIST 전산동아리 WING — AI 분과 부원", en: "GIST Computing Club WING — AI Division Member" },
+            sub: { ko: "AI 정기스터디", en: "Regular AI study group" },
+          },
+          {
+            year: "2022.09.03",
+            title: { ko: "GIST 미니 해커톤 대회 드론 조교", en: "GIST Mini Hackathon — Drone TA" },
+          },
+          {
+            year: "2022.10.28 – 29",
+            title: { ko: "GIST AI+IoT Makeathon 본선 참가", en: "GIST AI+IoT Makeathon — Finalist" },
+            sub: { ko: "주제: 심리 안정을 위한 감정분석 인형", en: "Theme: emotion-analysis plush toy for psychological comfort" },
+          },
+          {
+            year: "2023.06.03 – 04",
+            title: { ko: "GIST 꿈꾸는 아이 AI 새싹캠프 드론 조교", en: "GIST 'Dreaming Kids' AI Sprout Camp — Drone TA" },
+          },
+          {
+            year: "2023.08.26",
+            title: { ko: "GIST 미니 해커톤 대회 드론 조교", en: "GIST Mini Hackathon — Drone TA" },
           },
         ],
       },
@@ -385,13 +365,13 @@ const SITE_DATA = {
         items: [
           {
             year: { ko: "2026 – · 진행 중", en: "2026 – · in progress" },
-            title: { ko: "Vortex Crack", en: "Vortex Crack" },
-            sub: { ko: "광주음악창작소 뮤지션지원사업", en: "Gwangju Music Creation Center Musician Program" },
+            title: { ko: "P4L — Vortex Crack", en: "P4L — Vortex Crack" },
+            sub: { ko: "P4L 정규 1집 · 광주음악창작소 뮤지션 제작지원사업", en: "P4L's debut LP · Gwangju Music Creation Center Musician Program" },
             desc: {
-              ko: "2026 광주음악창작소 뮤지션지원사업에 광주 지역 공동 1위 성적으로 선정. 앨범 제작·홍보 지원을 받아 프로젝트 'Vortex Crack' 진행 중.",
-              en: "Selected (tied 1st in the Gwangju region) for the 2026 Gwangju Music Creation Center musician support program — album production & promotion support. Project 'Vortex Crack' in progress.",
+              ko: "10인조 힙합 크루 P4L의 정규 1집(총 9곡). 2026 광주음악창작소 뮤지션 제작지원사업에 광주 지역 공동 1위 성적으로 선정되어 앨범 제작과 타이틀곡 포함 뮤직비디오 3편 제작 지원을 받아 진행 중. 작곡·작사·편곡으로 참여.",
+              en: "Debut 9-track LP from 10-member hip-hop crew P4L. Selected (tied 1st in the Gwangju region) for the 2026 Gwangju Music Creation Center musician support program — album production and 3 music videos (incl. the title track) in progress. Contributing composition, lyrics and arrangement.",
             },
-            tags: ["Album", "WIP", "1st Place"],
+            tags: ["Album", "WIP", "1st Place", "P4L"],
           },
           {
             year: "2023.03",
@@ -422,6 +402,16 @@ const SITE_DATA = {
             },
             tags: ["Crew", "Leader"],
           },
+          {
+            year: "2025.09 –",
+            title: { ko: "P4L (Party For Life)", en: "P4L (Party For Life)" },
+            sub: { ko: "10인조 힙합 크루 · 보컬·작곡·작사·편곡", en: "10-member hip-hop crew · vocals, composition & lyrics" },
+            desc: {
+              ko: "2025년 9월 결성한 10인조 힙합 크루. 비트 메이킹부터 작사·녹음·믹싱까지 전 과정을 크루 내부에서 직접 제작하며, 강렬한 EDM 힙합부터 서정적인 트랙까지 폭넓은 스펙트럼을 추구. 다크 미니멀리즘 비주얼 정체성 아래 정규 1집 'VORTEX CRACK'(9곡)을 준비 중이며 보컬·작곡·작사·편곡으로 참여.",
+              en: "10-member hip-hop crew formed in September 2025. Produces everything in-house — beat-making, lyrics, recording and mixing — spanning high-energy EDM hip-hop to lyrical, atmospheric tracks. Building a dark-minimalist visual identity while preparing debut LP 'VORTEX CRACK' (9 tracks); contributing vocals, composition, lyrics and arrangement.",
+            },
+            tags: ["Crew", "Hip-hop", "EDM"],
+          },
         ],
       },
       {
@@ -435,10 +425,20 @@ const SITE_DATA = {
             title: { ko: "W.A.N.I. Project", en: "W.A.N.I. Project" },
             sub: { ko: "Wider Audio Network Insights", en: "Wider Audio Network Insights" },
             desc: {
-              ko: "제작–시각화–분석 3부 구성. FL Studio·Serum 사운드 디자인과 믹스/마스터, TouchDesigner 오디오 반응 비주얼 및 손 제스처 웹 비주얼라이저, 레퍼런스 곡 기반 타입비트 검색 프로그램. '사운드 디자인과 프로그래밍' 수업 A+.",
-              en: "Three parts: production, visualization, analysis. FL Studio & Serum sound design with mix/master, TouchDesigner audio-reactive visuals plus a hand-gesture web visualizer, and a reference-based type-beat search program. A+ in 'Sound Design & Programming'.",
+              ko: "제작–시각화–분석 3부 구성. FL Studio·Serum 사운드 디자인과 믹스/마스터, TouchDesigner 오디오 반응 비주얼 및 손 제스처 웹 비주얼라이저, 레퍼런스 곡 기반 타입비트 검색 프로그램. '사운드 디자인과 프로그래밍' 수업 프로젝트로 진행.",
+              en: "Three parts: production, visualization, analysis. FL Studio & Serum sound design with mix/master, TouchDesigner audio-reactive visuals plus a hand-gesture web visualizer, and a reference-based type-beat search program. A class project for 'Sound Design & Programming'.",
             },
             tags: ["FL Studio", "TouchDesigner", "AI Digging"],
+          },
+          {
+            year: "2026.04 – 11",
+            title: { ko: "GIST 무한도전 프로젝트 × P4L: Podcast For Life", en: "GIST Challenge Project × P4L: Podcast For Life" },
+            sub: { ko: "GIST 무한도전 프로젝트(11기) · 대표 — 총괄·기획·진행(MC)", en: "GIST Challenge Project (11th) · Team Lead — direction, planning & MC" },
+            desc: {
+              ko: "GIST 재학생(3·4학년)과 졸업생 선배들의 꾸미지 않은 대화를 담은 팟캐스트 영상 시리즈. 6인 팀의 대표로 콘텐츠 방향 설정·에피소드 기획·대화 진행(MC)을 맡아 도서관·분수대·강의실 등 캠퍼스 곳곳에서 대본 없이 촬영하고, 에피소드별 메시지를 담은 자작곡을 FL Studio로 제작해 함께 공개. 월 1편 이상 발행을 목표로 진행 중.",
+              en: "A podcast video series of unscripted conversations with GIST upperclassmen and alumni. As lead of a 6-person team, directing content strategy, episode planning and hosting (MC) — filming without a script around campus (library, fountain, lecture halls) and producing an original song for each episode's message in FL Studio. Targeting at least one episode a month.",
+            },
+            tags: ["Podcast", "MC", "FL Studio", "Video"],
           },
           {
             year: "2022.04 – 11",

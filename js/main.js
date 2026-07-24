@@ -492,8 +492,8 @@
     const t = (ko, en) => (lang === "ko" ? ko : en);
     let h = `
       <h1>김창완 KIM CHANGWAN — wani (@toowani)</h1>
-      <p class="pr-head">${t("GIST 전기전자컴퓨터공학과 3학년 · ML/DL · 신호처리 · 힙합 베이스 전자음악/하이퍼팝 프로듀서",
-        "Junior, EECS @ GIST · ML/DL · signal processing · hip-hop bass electronic / hyperpop producer")}<br>
+      <p class="pr-head">${t("GIST 전기전자컴퓨터공학과 3학년 · ML/DL · AI 연구 · 힙합 베이스 전자음악/하이퍼팝 프로듀서",
+        "Junior, EECS @ GIST · ML/DL · AI research · hip-hop bass electronic / hyperpop producer")}<br>
         changwan@gm.gist.ac.kr · kcw9151@gmail.com · github.com/toowani · youtube.com/@toowani</p>`;
     h += `<h2>${t("DEV — 개발·연구", "DEV — engineering & research")}</h2>`;
     for (const sec of SITE_DATA.dev.sections) h += printSection(sec);
