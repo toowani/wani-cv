@@ -54,6 +54,16 @@
   .updtag-new {
     background: rgba(255, 122, 0, 0.92); color: #fff; font-weight: 700;
   }
+  .schedtag {
+    position: absolute; bottom: 4px; right: 4px;
+    font-size: 9px; padding: 1px 5px; border-radius: 4px;
+    background: rgba(30, 90, 210, 0.85); color: #fff;
+  }
+  .notice {
+    max-width: 640px; margin: 0 auto 14px; padding: 8px 12px;
+    background: rgba(255, 122, 0, 0.12); border: 1px solid rgba(255, 122, 0, 0.4);
+    border-radius: 6px; font-size: 12px; line-height: 1.5; color: #ffb877;
+  }
   .modal {
     display: none;
     position: fixed; inset: 0; z-index: 10;
@@ -84,43 +94,53 @@
 </head>
 <body>
 <h1>P4L ep1 쇼츠 미리보기 (4개) — 내부 확인용, 검색 노출 안 됨<br>
-<small style="font-weight:400; color:#666;">페이지 생성 시각: 2026-08-23 00:57 KST (이 시각 기준 스냅샷 — 카드별 "영상 갱신" 시각과는 다른 값)</small></h1>
+<small style="font-weight:400; color:#666;">페이지 생성 시각: 2026-08-23 01:16 KST (이 시각 기준 스냅샷 — 카드별 "영상 갱신" 시각과는 다른 값)</small></h1>
+<div class="notice">
+  ⚠️ 자동 게시가 지금 <strong>중지된 상태</strong>다 (crontab 내려감, GitHub Actions 전환 전).
+  카드/모달의 "게시 예정" 날짜는 확정 일정이 아니라, 자동 게시가 재개된다는
+  가정 하에 미게시 순번 기준으로 계산한 <strong>추정치</strong>다. 재개일이 바뀌면
+  이 값도 전부 밀린다.
+</div>
 <div class="grid">
 <div class="cell" data-video="https://pub-b05732b28b264622919a1f9f03acc884.r2.dev/shorts/s14/video.mp4?v=6dd778e0" data-cover="https://pub-b05732b28b264622919a1f9f03acc884.r2.dev/shorts/s14/cover.png?v=6dd778e0"
      data-num="s14" data-title="장래가 고민이면 때려쳐" data-duration="0:43"
      data-status="예정" data-permalink=""
-     data-updated-full="2026-08-22 22:56 KST">
+     data-updated-full="2026-08-22 22:56 KST" data-schedule-full="8월 24일 (월) 18:00">
   <img src="https://pub-b05732b28b264622919a1f9f03acc884.r2.dev/shorts/s14/cover.png?v=6dd778e0" loading="lazy" alt="s14">
   <span class="badge badge-pending">예정</span>
   <span class="numtag">s14</span>
   <span class="updtag updtag-new" title="영상 갱신 시각">NEW 08-22 22:56</span>
+  <span class="schedtag" title="게시 예정 — 자동 게시 중지 중, 추정치">8/24(월)</span>
 </div>
 <div class="cell" data-video="https://pub-b05732b28b264622919a1f9f03acc884.r2.dev/shorts/s15/video.mp4?v=6d8a895e" data-cover="https://pub-b05732b28b264622919a1f9f03acc884.r2.dev/shorts/s15/cover.png?v=6d8a895e"
      data-num="s15" data-title="둘 다 하려면 워라밸을 버리십시오" data-duration="0:13"
      data-status="예정" data-permalink=""
-     data-updated-full="2026-08-22 22:56 KST">
+     data-updated-full="2026-08-22 22:56 KST" data-schedule-full="8월 25일 (화) 18:00">
   <img src="https://pub-b05732b28b264622919a1f9f03acc884.r2.dev/shorts/s15/cover.png?v=6d8a895e" loading="lazy" alt="s15">
   <span class="badge badge-pending">예정</span>
   <span class="numtag">s15</span>
   <span class="updtag updtag-new" title="영상 갱신 시각">NEW 08-22 22:56</span>
+  <span class="schedtag" title="게시 예정 — 자동 게시 중지 중, 추정치">8/25(화)</span>
 </div>
 <div class="cell" data-video="https://pub-b05732b28b264622919a1f9f03acc884.r2.dev/shorts/s16/video.mp4?v=d96c7000" data-cover="https://pub-b05732b28b264622919a1f9f03acc884.r2.dev/shorts/s16/cover.png?v=d96c7000"
      data-num="s16" data-title="연구냐 음악이냐 아직도 갈팡질팡" data-duration="1:09"
      data-status="예정" data-permalink=""
-     data-updated-full="2026-08-22 22:58 KST">
+     data-updated-full="2026-08-22 22:58 KST" data-schedule-full="8월 26일 (수) 18:00">
   <img src="https://pub-b05732b28b264622919a1f9f03acc884.r2.dev/shorts/s16/cover.png?v=d96c7000" loading="lazy" alt="s16">
   <span class="badge badge-pending">예정</span>
   <span class="numtag">s16</span>
   <span class="updtag updtag-new" title="영상 갱신 시각">NEW 08-22 22:58</span>
+  <span class="schedtag" title="게시 예정 — 자동 게시 중지 중, 추정치">8/26(수)</span>
 </div>
 <div class="cell" data-video="https://pub-b05732b28b264622919a1f9f03acc884.r2.dev/shorts/s17/video.mp4?v=4698b9bc" data-cover="https://pub-b05732b28b264622919a1f9f03acc884.r2.dev/shorts/s17/cover.png?v=4698b9bc"
      data-num="s17" data-title="광주 탈락하고 11월 11일 발매" data-duration="1:10"
      data-status="예정" data-permalink=""
-     data-updated-full="2026-08-22 22:59 KST">
+     data-updated-full="2026-08-22 22:59 KST" data-schedule-full="8월 27일 (목) 18:00">
   <img src="https://pub-b05732b28b264622919a1f9f03acc884.r2.dev/shorts/s17/cover.png?v=4698b9bc" loading="lazy" alt="s17">
   <span class="badge badge-pending">예정</span>
   <span class="numtag">s17</span>
   <span class="updtag updtag-new" title="영상 갱신 시각">NEW 08-22 22:59</span>
+  <span class="schedtag" title="게시 예정 — 자동 게시 중지 중, 추정치">8/27(목)</span>
 </div>
 </div>
 
@@ -145,7 +165,11 @@
     const d = cell.dataset;
     video.src = d.video;
     video.poster = d.cover;
-    meta.textContent = `${d.num} · ${d.duration} · ${d.status} · 영상 갱신: ${d.updatedFull}`;
+    let text = `${d.num} · ${d.duration} · ${d.status} · 영상 갱신: ${d.updatedFull}`;
+    if (d.scheduleFull) {
+      text += ` · 게시 예정: ${d.scheduleFull} (자동 게시 중지 중 — 추정치)`;
+    }
+    meta.textContent = text;
     if (d.permalink) {
       link.href = d.permalink;
       link.style.display = 'inline';
