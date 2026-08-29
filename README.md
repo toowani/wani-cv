@@ -1,6 +1,8 @@
 # WANI.SYS — half on land, half in water
 
-악어(wani)처럼 땅(학업)과 물(음악) 두 세계를 오가는 컨셉의 글리치 포트폴리오. 순수 HTML/CSS/JS로 빌드 도구 없이 GitHub Pages에 바로 배포됩니다. 모든 핸들: @toowani.
+악어(wani)처럼 땅(학업)과 물(음악) 두 세계를 오가는 컨셉의 글리치 포트폴리오(이력서/CV). 순수 HTML/CSS/JS로 빌드 도구 없이 GitHub Pages에 바로 배포됩니다. 모든 핸들: @toowani.
+
+`cv.toowani.com`에서 서비스됩니다. 프로젝트 허브(`toowani.com`)는 별도 저장소(`toowani.github.io`)입니다.
 
 ## 파일 구조
 
@@ -22,9 +24,9 @@ pip install reportlab koreanize-matplotlib
 python scripts/make_resume.py
 ```
 
-## 배포 후 교체할 URL (현재 `https://toowani.github.io/`로 임시 설정)
+## 도메인
 
-`index.html`의 og:url·JSON-LD url, `robots.txt`의 Sitemap 주소, `sitemap.xml`의 loc
+`index.html`의 og:url·JSON-LD url, `robots.txt`의 Sitemap 주소, `sitemap.xml`의 loc은 모두 `https://cv.toowani.com/`로 설정되어 있습니다. 저장소 Settings → Pages → Custom domain에 `cv.toowani.com`을 입력하고, Cloudflare DNS에 해당 CNAME 레코드를 추가하면 배포됩니다.
 
 ## 이스터에그
 
@@ -56,7 +58,7 @@ python3 -m http.server 8000
    git push -u origin main
    ```
 3. 저장소 Settings → Pages → Source를 `main` 브랜치 `/ (root)`로 설정
-4. 잠시 후 `https://<username>.github.io/<repo>/` 에서 접속 가능
+4. Settings → Pages → Custom domain에 `cv.toowani.com` 입력, Cloudflare DNS에 CNAME 레코드 추가 후 접속 가능
 
 빌드 과정이 없으므로 GitHub Actions는 필요 없습니다.
 
