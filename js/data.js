@@ -90,6 +90,26 @@ const SITE_DATA = {
 
     sections: [
       {
+        id: "awards",
+        title: { ko: "수상", en: "AWARDS" },
+        ghost: "AWARD",
+        type: "list",
+        items: [
+          {
+            year: "2026.11.05 – 07",
+            title: {
+              ko: "2026 아트코리아랩 예술 해커톤 「휴먼 인 더 루프」 우수상 (2위)",
+              en: "2026 Arts Korea Lab Art Hackathon “Human in the Loop” — Excellence Award (2nd place)",
+            },
+            sub: {
+              ko: "AI의 답에 인간의 질문을 더하기 · 문화체육관광부 주최, 예술경영지원센터·아트코리아랩 주관 · 상금 50만 원",
+              en: "Adding human questions to AI's answers · Hosted by the Ministry of Culture, Sports and Tourism; organized by KAMS & Arts Korea Lab · ₩500,000 prize",
+            },
+            tags: ["AI", "Art", "Hackathon"],
+          },
+        ],
+      },
+      {
         id: "exchange",
         title: { ko: "학점교류", en: "EXCHANGE" },
         ghost: "EXCHANGE",
