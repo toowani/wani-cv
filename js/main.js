@@ -50,7 +50,7 @@
       boot.removeEventListener("pointerdown", skip);
       sessionStorage.setItem("wani-booted", "1");
       boot.classList.add("done");
-      setTimeout(() => boot.remove(), 700);
+      setTimeout(() => { boot.remove(); runTour(); }, 700);
     }
     function skip() {
       log.textContent = BOOT_LINES.join("\n") + "\n";
@@ -71,6 +71,50 @@
         clearInterval(iv);
       }
     }, speed);
+  }
+
+  /* ============================================================
+     FIRST-VISIT TOUR — 돋보기가 홈 화면 구조를 짧게 설명 (최초 1회)
+     ============================================================ */
+  function runTour() {
+    if (localStorage.getItem("wani-toured") || body.dataset.mode !== "none") return;
+    localStorage.setItem("wani-toured", "1");
+    const steps = SITE_DATA.tour.filter((t) => $(t.target)?.getClientRects().length);
+    const wrap = document.createElement("div");
+    wrap.id = "tour";
+    wrap.innerHTML = `<div class="tour-lens"></div><p class="tour-tip"></p><span class="tour-skip">${SITE_DATA.ui[lang].tourSkip}</span>`;
+    document.body.appendChild(wrap);
+    const lens = wrap.querySelector(".tour-lens"), tip = wrap.querySelector(".tour-tip");
+    let i = 0, timer = null;
+    function end() {
+      clearTimeout(timer);
+      window.removeEventListener("keydown", end);
+      wrap.classList.add("out");
+      setTimeout(() => wrap.remove(), 400);
+    }
+    function show() {
+      if (i >= steps.length) return end();
+      const r = $(steps[i].target).getBoundingClientRect();
+      const x = r.left + r.width / 2, y = r.top + r.height / 2;
+      lens.style.transform = `translate(${x}px, ${y}px)`;
+      tip.classList.remove("on"); // 이동 중엔 말풍선 숨김, 도착하면 표시
+      const step = steps[i];
+      setTimeout(() => {
+        tip.innerHTML = step.text[lang];
+        // 말풍선: 돋보기 아래(화면 아래쪽이면 위), 화면 밖으로 안 나가게
+        const below = y < innerHeight * 0.6;
+        const half = tip.offsetWidth / 2 + 10;
+        tip.style.left = Math.min(Math.max(x, half), innerWidth - half) + "px";
+        tip.style.top = (below ? y + 62 : y - 62) + "px";
+        tip.classList.toggle("above", !below);
+        tip.classList.add("on");
+      }, fx === "off" ? 0 : 750);
+      i++;
+      timer = setTimeout(show, 2600);
+    }
+    wrap.addEventListener("pointerdown", end); // 아무 곳이나 누르면 종료
+    window.addEventListener("keydown", end);
+    requestAnimationFrame(show);
   }
 
   /* ============================================================

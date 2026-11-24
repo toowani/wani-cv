@@ -925,3 +925,37 @@ body[data-theme="light"] .jy-card.water .jy-year { color:#4f6f9c; }
   .trk { grid-template-columns:1fr; gap:4px; padding:32px 4px; }
   .trk-no { font-size:32px; -webkit-text-stroke-width:1px; }
 }
+
+/* ============================================================
+   FIRST-VISIT TOUR — 돋보기
+============================================================ */
+#tour { position:fixed; inset:0; z-index:1200; cursor:pointer; animation:tour-in .4s ease; }
+#tour.out { opacity:0; transition:opacity .35s; }
+@keyframes tour-in { from { opacity:0; } }
+.tour-lens {
+  position:absolute; left:-44px; top:-44px; width:88px; height:88px; border-radius:50%;
+  border:3px solid var(--fg); background:rgba(255,255,255,.12);
+  box-shadow:0 0 0 2000px rgba(0,0,0,.18), var(--inner-hl);
+  transform:translate(50vw, 50vh);
+  transition:transform 1s var(--ease-spring);
+}
+.tour-lens::after { /* 손잡이 */
+  content:""; position:absolute; left:74px; top:74px; width:34px; height:8px; border-radius:4px;
+  background:var(--fg); transform:rotate(45deg); transform-origin:0 50%;
+}
+.tour-tip {
+  position:absolute; transform:translateX(-50%); width:max-content; max-width:min(260px, 86vw);
+  margin:0; padding:10px 14px; word-break:keep-all;
+  font-family:var(--mono); font-size:12px; line-height:1.6; color:var(--fg);
+  background:var(--bg); border:1px solid var(--hairline); border-radius:var(--r-s);
+  box-shadow:var(--inner-hl), 0 4px 14px rgba(0,0,0,.15);
+  opacity:0; transition:opacity .25s;
+}
+.tour-tip.on { opacity:1; }
+.tour-tip.above { transform:translate(-50%, -100%); }
+.tour-tip b { color:var(--fg); font-weight:700; }
+.tour-skip {
+  position:absolute; left:50%; bottom:5vh; transform:translateX(-50%);
+  font-family:var(--mono); font-size:10px; letter-spacing:2px; color:var(--dim);
+}
+body[data-fx="off"] .tour-lens { transition:none; }

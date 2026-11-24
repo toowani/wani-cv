@@ -31,6 +31,7 @@ const SITE_DATA = {
       jyHint: "스크롤 ↓ 2022 → NOW",
       jyStart: "START · 2022",
       jyNow: "NOW",
+      tourSkip: "아무 곳이나 누르면 건너뛰기",
     },
     en: {
       switchMode: "SWITCH MODE",
@@ -54,8 +55,17 @@ const SITE_DATA = {
       jyHint: "SCROLL ↓ 2022 → NOW",
       jyStart: "START · 2022",
       jyNow: "NOW",
+      tourSkip: "Tap anywhere to skip",
     },
   },
+
+  /* ---------- 첫 방문 돋보기 투어 (target = 홈 화면 요소) ---------- */
+  tour: [
+    { target: ".half-land .half-inner",   text: { ko: "<b>▲ DEV</b> — 개발·연구 이력<br>수상 · 학점교류 · 프로젝트", en: "<b>▲ DEV</b> — engineering & research<br>awards · exchange · projects" } },
+    { target: ".half-water .half-inner",  text: { ko: "<b>▼ MUSIC</b> — 음악·영상 작업<br>발매 · 크루 · 콘텐츠", en: "<b>▼ MUSIC</b> — music & visual work<br>releases · crew · content" } },
+    { target: ".landing-title", text: { ko: "<b>WANI</b>를 누르면 LIFE MAP<br>2022 → 지금, 한눈에", en: "Tap <b>WANI</b> for the LIFE MAP<br>2022 → now at a glance" } },
+    { target: "#hud-controls", text: { ko: "모드 전환 · 언어 · 테마<br><b>PRINT</b>로 전체 이력 인쇄·저장", en: "mode · language · theme<br><b>PRINT</b> prints or saves the full CV" } },
+  ],
 
   /* ---------- 티커 문구 ---------- */
   ticker: {
