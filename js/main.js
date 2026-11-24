@@ -74,6 +74,19 @@
   }
 
   /* ============================================================
+     PREFETCH — 화면 전환 지연 없애기
+     Pretendard는 글자 묶음(서브셋)별로 필요할 때 받으므로, 쉬는 시간에
+     사이트 전체 글자(두 언어)의 서브셋을 미리 받아 둔다.
+     ============================================================ */
+  function prefetchFonts() {
+    if (!document.fonts?.load) return;
+    const text = [...new Set(JSON.stringify(SITE_DATA) + document.body.innerText)].join("");
+    document.fonts.load('16px "Pretendard Variable"', text).catch(() => {});
+    document.fonts.load('16px "Archivo Black"', text).catch(() => {});
+  }
+  (window.requestIdleCallback || ((f) => setTimeout(f, 1200)))(prefetchFonts);
+
+  /* ============================================================
      FIRST-VISIT TOUR — 돋보기가 홈 화면 구조를 짧게 설명 (최초 1회)
      ============================================================ */
   function runTour() {

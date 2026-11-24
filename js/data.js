@@ -12,7 +12,7 @@ const SITE_DATA = {
     ko: {
       switchMode: "모드 전환",
       landingEyebrow: "// KIM CHANGWAN — GIST EECS × ELECTRONIC MUSIC",
-      devCardDesc: "GIST 전기전자컴퓨터공학 — ML/DL · AI 연구",
+      devCardDesc: "GIST 전기전자컴퓨터공학 — AI 엔지니어링 · LLM 에이전트",
       artistCardDesc: "힙합 베이스 전자음악 · 하이퍼팝 프로듀서",
       enter: "[ ENTER ]",
       landTag: "▲ DEV",
@@ -36,7 +36,7 @@ const SITE_DATA = {
     en: {
       switchMode: "SWITCH MODE",
       landingEyebrow: "// KIM CHANGWAN — GIST EECS × ELECTRONIC MUSIC",
-      devCardDesc: "GIST EECS — ML/DL · AI research",
+      devCardDesc: "GIST EECS — AI engineering · LLM agents",
       artistCardDesc: "hip-hop bass electronic · hyperpop producer",
       enter: "[ ENTER ]",
       landTag: "▲ DEV",
@@ -69,7 +69,7 @@ const SITE_DATA = {
 
   /* ---------- 티커 문구 ---------- */
   ticker: {
-    dev:    "R&D_WANI :: GIST EECS :: ML/DL · AI RESEARCH :: KAIST → UC BERKELEY :: @toowani :: ",
+    dev:    "R&D_WANI :: GIST EECS :: AI ENGINEERING · LLM AGENTS :: IRR LAB @ GIST :: @toowani :: ",
     artist: "ART_WANI :: HIPHOP BASS · HYPERPOP :: VORTEX CRACK — IN PROGRESS :: @toowani :: ",
     journey: "LIFE.MAP :: 2022 → NOW :: DEV × MUSIC :: @toowani :: ",
     none:   "WANI.SYS :: GIST EECS × ELECTRONIC MUSIC :: SELECT MODE :: @toowani :: ",
@@ -84,7 +84,11 @@ const SITE_DATA = {
         "$ whoami",
         "김창완 — GIST 전기전자컴퓨터공학과 3학년",
         "$ cat interests.txt",
-        "ML/DL · AI 연구 · 오디오 AI",
+        "LLM 에이전트 · AI 엔지니어링 · 오디오 AI",
+        "$ cat now.txt",
+        "GIST IRR Lab 학부연구생 (2026.09 –)",
+        "$ cat stack.txt",
+        "Python · PyTorch · TypeScript · Kotlin · GitHub Actions · Cloudflare Workers · Claude Code",
         "$ echo $HANDLE",
         "@toowani  <span class='dim'># 모든 플랫폼 동일 핸들</span>",
       ],
@@ -92,7 +96,11 @@ const SITE_DATA = {
         "$ whoami",
         "Changwan Kim — Junior, EECS @ GIST",
         "$ cat interests.txt",
-        "ML/DL · AI research · audio AI",
+        "LLM agents · AI engineering · audio AI",
+        "$ cat now.txt",
+        "Undergraduate research intern, IRR Lab @ GIST (Sep 2026 –)",
+        "$ cat stack.txt",
+        "Python · PyTorch · TypeScript · Kotlin · GitHub Actions · Cloudflare Workers · Claude Code",
         "$ echo $HANDLE",
         "@toowani  <span class='dim'># same handle everywhere</span>",
       ],
@@ -132,7 +140,30 @@ const SITE_DATA = {
               ko: "AI의 답에 인간의 질문을 더하기 · 문화체육관광부 주최, 예술경영지원센터·아트코리아랩 주관 · 상금 50만 원",
               en: "Adding human questions to AI's answers · Hosted by the Ministry of Culture, Sports and Tourism; organized by KAMS & Arts Korea Lab · ₩500,000 prize",
             },
+            desc: {
+              ko: "Card Stack — 3D 검색 웹아트.",
+              en: "Card Stack — 3D search web art.",
+            },
             tags: ["AI", "Art", "Hackathon"],
+            link: { url: "https://github.com/toowani/art-hackathon", label: { ko: "GitHub", en: "GitHub" } },
+          },
+        ],
+      },
+      {
+        id: "research",
+        title: { ko: "연구", en: "RESEARCH" },
+        ghost: "RESEARCH",
+        type: "list",
+        items: [
+          {
+            year: { ko: "2026.09 – 현재", en: "2026.09 – present" },
+            title: { ko: "IRR Lab, GIST — 학부연구생", en: "IRR Lab, GIST — Undergraduate Research Intern" },
+            sub: { ko: "지도교수: Kangil Kim", en: "Advisor: Prof. Kangil Kim" },
+            desc: {
+              ko: "ML/DL 기초 학습과 논문 리뷰.",
+              en: "ML/DL fundamentals and paper reviews.",
+            },
+            tags: ["ML/DL", "Paper Review"],
           },
         ],
       },
@@ -143,12 +174,12 @@ const SITE_DATA = {
         type: "list",
         items: [
           {
-            year: { ko: "2026.06 – 08 · 진행 중", en: "2026.06 – 08 · in progress" },
+            year: "2026.06 – 08",
             title: { ko: "UC Berkeley 학점교류", en: "UC Berkeley Exchange" },
-            sub: "Berkeley, CA · 8 weeks",
+            sub: { ko: "Berkeley, CA · 8 weeks · Summer Visiting Student", en: "Berkeley, CA · 8 weeks · Summer Visiting Student" },
             desc: {
-              ko: "여름 학기 8주 과정으로 CS70(이산수학·확률)과 CS188(인공지능)을 수강 중.",
-              en: "8-week summer session — currently taking CS70 (Discrete Math & Probability) and CS188 (Artificial Intelligence).",
+              ko: "여름 학기 8주 과정 수료 — CS188 인공지능(A), CS70 이산수학·확률(B+).",
+              en: "Completed the 8-week summer session — CS188 Artificial Intelligence (A), CS70 Discrete Math & Probability (B+).",
             },
             tags: ["CS70", "CS188", "AI"],
           },
@@ -219,8 +250,13 @@ const SITE_DATA = {
           },
           {
             year: "3-여름",
-            title: { ko: "2026 · 여름학기 (UC Berkeley 학점교류 · 진행 중)", en: "2026 · Summer (UC Berkeley Exchange · in progress)" },
+            title: { ko: "2026 · 여름학기 (UC Berkeley 학점교류)", en: "2026 · Summer (UC Berkeley Exchange)" },
             desc: { ko: "CS70 이산수학 · CS188 인공지능", en: "CS70 Discrete Mathematics · CS188 Artificial Intelligence" },
+          },
+          {
+            year: "3-2",
+            title: { ko: "2026 · 가을학기 (수강 중)", en: "2026 · Fall (in progress)" },
+            desc: { ko: "컴퓨터 구조 · 컴퓨터 네트워크", en: "Computer Architecture · Computer Networking" },
           },
         ],
       },
@@ -260,7 +296,7 @@ const SITE_DATA = {
         type: "list",
         items: [
           {
-            year: "2023.05 – 11",
+            year: "2023.05 – 2026",
             title: { ko: "CRAVE — 기술팀 대표", en: "CRAVE — Tech Lead" },
             sub: { ko: "창업동아리", en: "Startup club" },
             desc: {
@@ -288,6 +324,69 @@ const SITE_DATA = {
         type: "list",
         items: [
           {
+            year: "2026.11",
+            title: { ko: "멀미 케어 앱", en: "Motion-Sickness Care App" },
+            sub: { ko: "현대 Pleos Connect · 팀 CRAVE", en: "Hyundai Pleos Connect · team CRAVE" },
+            desc: {
+              ko: "구현을 이끌었고, 시뮬레이터와 앱의 엔진 결과가 2,162개 샘플 전부에서 같음을 검증.",
+              en: "Led implementation; verified the engine matches across simulator and app on 2,162/2,162 samples.",
+            },
+            tags: ["Kotlin", "Python", "Android"],
+            link: { url: "https://github.com/toowani/motion-care", label: { ko: "GitHub", en: "GitHub" } },
+          },
+          {
+            year: "2026.11",
+            title: { ko: "LLM 안전성 평가", en: "LLM Safety Evaluation" },
+            sub: "2026 Gender Equality AI Benchmark Challenge",
+            desc: {
+              ko: "LLM 심사(LLM-as-a-judge)와 규칙 검사로 프롬프트 250개를 채점 — 요청을 쪼개면 40%의 경우 정보가 새어 나감을 발견.",
+              en: "Graded 250 prompts with an LLM judge plus rule checks; found that split requests leak information in 40% of cases.",
+            },
+            tags: ["LLM", "LLM-as-a-judge", "Safety"],
+          },
+          {
+            year: { ko: "2026.08 – 현재", en: "2026.08 – present" },
+            title: { ko: "데일리 브리핑 에이전트", en: "Daily Briefing Agent" },
+            sub: "Claude Code Routine · Slack",
+            desc: {
+              ko: "매일 사람 손 없이 실행. 같은 메시지가 두 번 가지 않도록 자기 상태를 저장소에 직접 커밋.",
+              en: "Runs every day unattended; commits its own state to the repo to prevent duplicate messages.",
+            },
+            tags: ["Claude Code", "Agent", "Slack"],
+          },
+          {
+            year: { ko: "2026.04 – 현재", en: "2026.04 – present" },
+            title: { ko: "팟캐스트 숏폼 파이프라인", en: "Podcast Shorts Pipeline" },
+            sub: { ko: "팀 대표 (6인 팀)", en: "Team lead (6-person team)" },
+            desc: {
+              ko: "수작업 편집을 명세 기반 빌드와 역할을 나눈 LLM 에이전트로 바꿔, 사람 손 없이 매일 업로드(릴스 49편 약 131만 회 조회). 에이전트 보고를 믿지 않고 직접 측정해 카메라 클럭 드리프트(−15.1 ppm)를 찾았고, 최대 83 ms까지 쌓이던 A/V 싱크 오차를 25.57 ms 고정값으로 바로잡음.",
+              en: "Replaced manual editing with a spec-driven build and role-separated LLM agents; publishes daily without human input (~1.31M views on 49 reels). Measured instead of trusting agent reports: found camera clock drift (−15.1 ppm) and fixed cumulative A/V sync error (up to 83 ms → fixed 25.57 ms).",
+            },
+            tags: ["Python", "ffmpeg", "GitHub Actions", "LLM Agents"],
+          },
+          {
+            year: "2026",
+            title: { ko: "강의 받아쓰기 사이트 & SSO", en: "Lecture Transcription Site & SSO" },
+            sub: "Cloudflare Workers · Whisper",
+            desc: {
+              ko: "하루 예산 제한으로 비용 0원에 강의를 받아쓰고 요약. 하위 사이트끼리 로그인 공유.",
+              en: "Transcribes and summarizes lectures at $0 cost via a daily budget guard; shared login across sub-sites.",
+            },
+            tags: ["Cloudflare Workers", "Whisper", "SSO"],
+            link: { url: "https://github.com/toowani/class-toowani", label: { ko: "GitHub", en: "GitHub" } },
+          },
+          {
+            year: "2026.03 – 06",
+            title: { ko: "지팡이 제스처 인식", en: "Wand Gesture Recognition" },
+            sub: { ko: "딥러닝 수업 프로젝트 · 6인 팀", en: "Deep Learning course project · 6-person team" },
+            desc: {
+              ko: "오프라인 테스트셋 100%였지만 라이브 데모에서 실패 — 실패 원인 분석(환경 과적합·조명 노이즈)을 주도.",
+              en: "100% on the offline test set but failed in the live demo; led the failure analysis (environment overfitting, lighting noise).",
+            },
+            tags: ["PyTorch", "Failure Analysis"],
+            link: { url: "https://github.com/toowani/2026_deeplearning_termproject", label: { ko: "GitHub", en: "GitHub" } },
+          },
+          {
             year: { ko: "2026 봄학기", en: "2026 Spring" },
             title: { ko: "W.A.N.I. Project", en: "W.A.N.I. Project" },
             sub: { ko: "사운드 디자인과 프로그래밍 (CT5104)", en: "Sound Design & Programming (CT5104)" },
@@ -296,6 +395,7 @@ const SITE_DATA = {
               en: "Wider Audio Network Insights — make, visualize and analyze music. Linked FL Studio to TouchDesigner in real time via a JUCE VST3 plugin over UDP/OSC for audio-reactive visuals, ported it to the web (Canvas, Web Audio, MediaPipe hand gestures), then built a 'type-beat digging program' that finds beats similar to a reference track — Demucs v4 vocal separation, -14LUFS normalization, PANNs embeddings searched by cosine similarity in ChromaDB/HNSW (Streamlit + FastAPI).",
             },
             tags: ["TouchDesigner", "JUCE", "MediaPipe", "PANNs", "ChromaDB"],
+            link: { url: "https://github.com/toowani/type-beat-digging", label: { ko: "타입비트 디깅 GitHub", en: "Type-beat digging on GitHub" } },
           },
           {
             year: "2022.09 – 12",

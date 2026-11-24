@@ -17,7 +17,7 @@ assets/audio/       track.mp3 를 넣으면 오디오 반응형 비주얼 활성
 
 ## 이력서 PDF 재생성
 
-`assets/resume_wani.pdf`는 `scripts/make_resume.py`로 생성됩니다. 사이트 내용(js/data.js)을 수정했다면 스크립트도 맞춰 고친 뒤 재실행하세요:
+`assets/resume_wani.pdf`는 2026-11부터 LaTeX CV 원본(`CV_김창완_2026-11.tex`)의 PDF 사본입니다. 아래 `scripts/make_resume.py`(국문 이력서 생성기)는 예전 방식입니다. 사이트 내용(js/data.js)을 수정했다면 스크립트도 맞춰 고친 뒤 재실행하세요:
 
 ```
 pip install reportlab koreanize-matplotlib

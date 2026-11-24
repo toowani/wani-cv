@@ -90,9 +90,9 @@ button { font-family: var(--mono); cursor:pointer; }
 /* ---------- boot overlay ---------- */
 #boot {
   position:fixed; inset:0; z-index:1000;
-  background:#0a0a0a; padding:8vh 6vw;
+  background:var(--bg); padding:8vh 6vw;
   font-family:var(--mono); font-size:clamp(11px,1.4vw,14px);
-  color:#e8e6df; text-align:left;
+  color:var(--fg); text-align:left;
   display:flex; flex-direction:column; justify-content:flex-end; gap:16px;
 }
 #boot.done { animation: boot-out .5s steps(6) forwards; }
@@ -102,7 +102,7 @@ button { font-family: var(--mono); cursor:pointer; }
   100% { opacity:0; visibility:hidden; transform:scale(1.05); }
 }
 #boot-log { white-space:pre-wrap; line-height:1.7; max-height:70vh; overflow:hidden; font-family:var(--ascii); }
-#boot-bar { height:8px; border:1px solid rgba(255,255,255,.25); /* boot: 항상 다크 */ border-radius:var(--r-s); overflow:hidden; }
+#boot-bar { height:8px; border:1px solid var(--stroke-strong); border-radius:var(--r-s); overflow:hidden; }
 #boot-bar-fill { height:100%; width:0%; background:var(--acc); transition:width .15s steps(4); }
 #boot-skip { font-size:10px; color:var(--dim); letter-spacing:2px; animation:blink 1.2s steps(1) infinite; }
 
