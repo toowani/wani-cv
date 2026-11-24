@@ -78,6 +78,10 @@ body {
   cursor: crosshair;
   text-align: center; /* 전체 중앙정렬 기준 */
 }
+/* 줄바꿈: 한글은 어절 단위로, 긴 URL 등은 넘칠 때만 끊기. 제목은 줄 길이 균형, 본문은 마지막 줄 외톨이 방지 */
+body { word-break:keep-all; overflow-wrap:break-word; }
+h1, h2, h3, .dl-title, .jy-title, .tl-title, .card-title { text-wrap:balance; }
+p, .dl-desc, .jy-desc, .tl-desc, .card-desc, .trk-desc, .dl-sub { text-wrap:pretty; }
 /* 숫자 폭 고정 — 시계·성적·스코어 흔들림 방지 */
 #hud-clock, .tr-summary, .tr-table, .tr-sem-stat, #game-hud { font-variant-numeric: tabular-nums; }
 a { color: var(--c1); text-decoration:none; }
