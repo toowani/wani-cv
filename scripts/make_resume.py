@@ -55,7 +55,7 @@ y -= 17
 c.setFont("NG", 9.5); c.setFillColor(GREY)
 c.drawString(ML, y, "땅(학업)과 물(음악), 두 세계를 오가는 개발자 × 아티스트 — half on land, half in water")
 y -= 14
-c.drawString(ML, y, "changwan@gm.gist.ac.kr  ·  kcw9151@gmail.com  ·  github.com/toowani  ·  youtube.com/@toowani")
+c.drawString(ML, y, "changwan@gm.gist.ac.kr  ·  contact@toowani.com  ·  github.com/toowani  ·  youtube.com/@toowani")
 y -= 12
 c.setStrokeColor(INK); c.setLineWidth(1.4); c.line(ML, y, MR, y)
 

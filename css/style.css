@@ -767,6 +767,12 @@ body[data-fx="off"] #croc-cursor { display:none !important; }
   padding:1px 6px; border:1px solid rgba(255,255,255,.25); color:var(--dim);
 }
 
+/* 라이트 테마: 카드 배경·태그 테두리·연도 색 (다크 고정값 덮어쓰기) */
+body[data-theme="light"] .jy-card { background:rgba(255,255,255,.82); box-shadow:var(--inner-hl), 0 4px 14px rgba(0,0,0,.08); }
+body[data-theme="light"] .jy-tags span { border-color:var(--stroke-strong); }
+body[data-theme="light"] .jy-card.land  .jy-year { color:#4f8a43; }
+body[data-theme="light"] .jy-card.water .jy-year { color:#4f6f9c; }
+
 /* 걷는 악어 */
 #jy-croc {
   position:absolute; z-index:5; pointer-events:none;

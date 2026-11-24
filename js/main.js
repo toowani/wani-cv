@@ -13,7 +13,7 @@
   let fx = localStorage.getItem("wani-fx") ||
     (matchMedia("(prefers-reduced-motion: reduce)").matches ? "off" : "high");
   let mode = "none"; // "dev" | "artist"
-  let theme = localStorage.getItem("wani-theme") || "dark";
+  let theme = localStorage.getItem("wani-theme") || "light";
 
   body.dataset.lang = lang;
   body.dataset.fx = fx;
@@ -494,7 +494,7 @@
       <h1>김창완 KIM CHANGWAN — wani (@toowani)</h1>
       <p class="pr-head">${t("GIST 전기전자컴퓨터공학과 3학년 · ML/DL · AI 연구 · 힙합 베이스 전자음악/하이퍼팝 프로듀서",
         "Junior, EECS @ GIST · ML/DL · AI research · hip-hop bass electronic / hyperpop producer")}<br>
-        changwan@gm.gist.ac.kr · kcw9151@gmail.com · github.com/toowani · youtube.com/@toowani</p>`;
+        changwan@gm.gist.ac.kr · contact@toowani.com · github.com/toowani · youtube.com/@toowani</p>`;
     h += `<h2>${t("DEV — 개발·연구", "DEV — engineering & research")}</h2>`;
     for (const sec of SITE_DATA.dev.sections) h += printSection(sec);
     h += `<h2>${t("ARTIST — 음악·콘텐츠", "ARTIST — music & content")}</h2>`;
@@ -599,8 +599,8 @@
     /* ---- 스크롤: 방향별 회전(아래=시계, 위=반시계) + 스프링 복귀 ---- */
     let angle = 0, spinVel = 0;
     window.addEventListener("wheel", (e) => {
-      spinVel += e.deltaY > 0 ? 14 : -14;
-      spinVel = Math.max(-46, Math.min(46, spinVel));
+      spinVel += e.deltaY > 0 ? 6 : -6;
+      spinVel = Math.max(-20, Math.min(20, spinVel));
     }, { passive: true });
 
     (function tick() {

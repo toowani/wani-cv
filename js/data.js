@@ -359,8 +359,8 @@ const SITE_DATA = {
         ghost: "CONNECT",
         type: "links",
         note: {
-          ko: "모든 플랫폼 동일 핸들: @toowani<br>contact: <b>changwan@gm.gist.ac.kr</b> · kcw9151@gmail.com",
-          en: "Same handle everywhere: @toowani<br>contact: <b>changwan@gm.gist.ac.kr</b> · kcw9151@gmail.com",
+          ko: "모든 플랫폼 동일 핸들: @toowani<br>contact: <b>changwan@gm.gist.ac.kr</b> · contact@toowani.com",
+          en: "Same handle everywhere: @toowani<br>contact: <b>changwan@gm.gist.ac.kr</b> · contact@toowani.com",
         },
         items: [
           { label: "GITHUB",   url: "https://github.com/toowani" },
@@ -506,8 +506,8 @@ const SITE_DATA = {
         ghost: "SIGNAL",
         type: "links",
         note: {
-          ko: "모든 플랫폼 동일 핸들: @toowani<br>contact: <b>changwan@gm.gist.ac.kr</b> · kcw9151@gmail.com",
-          en: "Same handle everywhere: @toowani<br>contact: <b>changwan@gm.gist.ac.kr</b> · kcw9151@gmail.com",
+          ko: "모든 플랫폼 동일 핸들: @toowani<br>contact: <b>changwan@gm.gist.ac.kr</b> · contact@toowani.com",
+          en: "Same handle everywhere: @toowani<br>contact: <b>changwan@gm.gist.ac.kr</b> · contact@toowani.com",
         },
         items: [
           { label: "YOUTUBE",    url: "https://www.youtube.com/@toowani" },
