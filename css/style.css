@@ -915,7 +915,7 @@ body[data-fx="off"] #croc-cursor { display:none !important; }
 
 @media (max-width: 720px) {
   .dl-row { grid-template-columns:1fr; gap:4px; padding:20px 4px; }
-  .dl-sub { display:block; margin:4px 0 0; }
+  .dl-sub { display:block; margin:4px 0 0; white-space:normal; }
   .trk { grid-template-columns:1fr; gap:4px; padding:32px 4px; }
   .trk-no { font-size:32px; -webkit-text-stroke-width:1px; }
 }

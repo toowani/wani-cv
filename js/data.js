@@ -96,6 +96,23 @@ const SITE_DATA = {
         type: "list",
         items: [
           {
+            year: "2026.11.21",
+            title: {
+              ko: "2026 서울AI디지털배움터 청년 AI 해커톤 우수상 (3위)",
+              en: "2026 Seoul AI Youth Hackathon — Excellence Award (3rd place)",
+            },
+            sub: {
+              ko: "'여기서' 팀(6인) · 프롬프트·LLM 엔지니어링 담당 · 서울특별시·서울AI재단 주최",
+              en: "Team 'Yeogiseo' (6 members) · Prompt & LLM engineering · Hosted by the Seoul Metropolitan Government & Seoul AI Foundation",
+            },
+            desc: {
+              ko: "역이에요!(Here Station) — 지하철 역사 안에서 GPS 없이 AR 화살표와 음성으로 길을 안내하는 모바일 앱.",
+              en: "Here Station — a mobile app that guides people through subway stations with AR arrows and voice, without GPS.",
+            },
+            tags: ["AI", "LLM", "AR", "Hackathon"],
+            link: { url: "https://github.com/dwjustin/here-station-v3", label: { ko: "GitHub", en: "GitHub" } },
+          },
+          {
             year: "2026.11.05 – 07",
             title: {
               ko: "2026 아트코리아랩 예술 해커톤 「휴먼 인 더 루프」 우수상 (2위)",
